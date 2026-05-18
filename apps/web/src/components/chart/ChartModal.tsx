@@ -48,8 +48,6 @@ export function ChartModal({ owner, name, open, onClose }: ChartModalProps) {
       }}
       aria-labelledby="chart-modal-title"
     >
-      <motionless />
-      <motionless />
       <div className="chart-modal__inner">
         <header className="chart-modal__header">
           <h2 id="chart-modal-title" className="chart-modal__title">
