@@ -13,6 +13,10 @@ export default async function AboutPage({
     <section className="py-6 prose prose-invert max-w-none">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
       <p className="text-muted mt-4">{t("disclaimer")}</p>
+      <h2 id="favorites" className="text-lg font-semibold mt-8">
+        {t("favoritesTitle")}
+      </h2>
+      <p className="text-muted mt-2 text-sm">{t("favoritesBody")}</p>
       <h2 id="ranking" className="text-lg font-semibold mt-8">
         Ranking rules
       </h2>

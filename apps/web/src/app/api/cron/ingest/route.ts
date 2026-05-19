@@ -11,6 +11,9 @@ const ingestLogger = {
   error: (msg: string, meta?: Record<string, unknown>) => {
     console.error(JSON.stringify({ level: "error", msg, ...meta }));
   },
+  warn: (msg: string, meta?: Record<string, unknown>) => {
+    console.warn(JSON.stringify({ level: "warn", msg, ...meta }));
+  },
 };
 
 /** Vercel Cron invokes GET; manual triggers may use POST. */

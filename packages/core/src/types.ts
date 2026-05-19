@@ -103,3 +103,56 @@ export type FeedResponse = z.infer<typeof FeedResponseSchema>;
 export type RepoAlternativeDetail = z.infer<typeof RepoAlternativeDetailSchema>;
 export type RepoDetail = z.infer<typeof RepoDetailSchema>;
 export type CompareResponse = z.infer<typeof CompareResponseSchema>;
+
+export const FavoriteSnapshotSchema = z.object({
+  description: z.string().optional(),
+  deltaStars: z.number().optional(),
+  health: HealthStatusSchema.optional(),
+});
+
+export const FavoriteItemSchema = z.object({
+  owner: z.string(),
+  name: z.string(),
+  savedAt: z.string(),
+  snapshot: FavoriteSnapshotSchema.optional(),
+});
+
+export const FavoritesDocumentSchema = z.object({
+  version: z.literal(1),
+  items: z.array(FavoriteItemSchema),
+});
+
+export const FavoriteRepoRefSchema = z.object({
+  owner: z.string().min(1),
+  name: z.string().min(1),
+});
+
+export const FavoritesHydrateRequestSchema = z.object({
+  repos: z.array(FavoriteRepoRefSchema).min(1).max(50),
+});
+
+export const FavoriteHydrateResultSchema = z.object({
+  owner: z.string(),
+  name: z.string(),
+  fullName: z.string(),
+  found: z.boolean(),
+  description: z.string().optional(),
+  deltaStars: z.number().optional(),
+  health: HealthStatusSchema.optional(),
+  language: z.string().nullable().optional(),
+  tags: z.array(z.string()).optional(),
+});
+
+export const FavoritesHydrateResponseSchema = z.object({
+  items: z.array(FavoriteHydrateResultSchema),
+});
+
+export type FavoriteSnapshot = z.infer<typeof FavoriteSnapshotSchema>;
+export type FavoriteItem = z.infer<typeof FavoriteItemSchema>;
+export type FavoritesDocument = z.infer<typeof FavoritesDocumentSchema>;
+export type FavoriteRepoRef = z.infer<typeof FavoriteRepoRefSchema>;
+export type FavoriteHydrateResult = z.infer<typeof FavoriteHydrateResultSchema>;
+export type FavoritesHydrateResponse = z.infer<typeof FavoritesHydrateResponseSchema>;
+
+export const FAVORITES_STORAGE_KEY = "gtp-favorites-v1";
+export const FAVORITES_MAX_ITEMS = 200;

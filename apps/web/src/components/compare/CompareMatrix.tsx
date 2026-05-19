@@ -1,3 +1,4 @@
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import type { CompareResponse } from "@github-trending/core/types";
 
 interface CompareMatrixProps {
@@ -16,7 +17,10 @@ export function CompareMatrix({ data }: CompareMatrixProps) {
                 key={repo.slug}
                 className="text-left p-2 border-b border-border font-mono"
               >
-                {repo.slug}
+                <div>{repo.slug}</div>
+                <div className="compare-col-fav">
+                  <FavoriteButton owner={repo.owner} name={repo.name} />
+                </div>
               </th>
             ))}
           </tr>

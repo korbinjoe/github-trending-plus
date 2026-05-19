@@ -1,6 +1,7 @@
 "use client";
 
 import { ChartModal } from "@/components/chart/ChartModal";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { Link } from "@/i18n/navigation";
 import type { FeedItem } from "@github-trending/core/types";
 import { useTranslations } from "next-intl";
@@ -26,66 +27,110 @@ function signalBadgeClass(trigger: string): string {
   return "badge-signal badge-signal--trigger";
 }
 
+function ChartIcon() {
+  return (
+    <svg className="btn-icon__svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 19V5M10 19V9M16 19v-4M22 19V11"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function RankCard({ item }: RankCardProps) {
   const t = useTranslations();
   const tabT = useTranslations("tab");
   const [chartOpen, setChartOpen] = useState(false);
   const healthLabel = t(`health.${item.health}`);
   const hasAltStrip = item.alternatives.length > 0;
+  const isTopRank = item.rank <= 3;
+  const hasChips =
+    (item.triggers && item.triggers.length > 0) || item.tags.length > 0;
 
   return (
-    <li className={hasAltStrip ? "rank-item" : undefined}>
+    <li className={`rank-item${hasAltStrip ? " rank-item--alt" : ""}`}>
       <Link href={`/repo/${item.owner}/${item.name}`} className="rank-card">
-        <span className="rank-card__rank">{item.rank}</span>
-        <div className="rank-card__body">
-          <div className="rank-card__title">
-            <span className="owner">{item.owner}</span>
-            <span className="repo">/ {item.name}</span>
-            {item.isEarlySignal && (
-              <span className="badge-early">{tabT("early")}</span>
-            )}
-          </div>
-          {item.triggers && item.triggers.length > 0 && (
-            <div className="signal-row">
-              {item.triggers.map((trigger) => (
-                <span key={trigger} className={signalBadgeClass(trigger)}>
-                  {trigger}
-                </span>
-              ))}
-            </div>
-          )}
-          {item.description && (
-            <p className="rank-card__desc">{item.description}</p>
-          )}
-          {item.tags.length > 0 && (
-            <div className="tag-list">
-              {item.tags.map((tag) => (
+        <div className="rank-card__layout">
+          <div className="rank-card__content">
+            <div className="rank-card__top">
+              <span
+                className={`rank-card__rank${isTopRank ? " rank-card__rank--top" : ""}`}
+              >
+                {item.rank}
+              </span>
+              <div className="rank-card__title">
+                <span className="owner">{item.owner}</span>
+                <span className="repo">/ {item.name}</span>
+                {item.isEarlySignal && (
+                  <span className="badge-early">{tabT("early")}</span>
+                )}
+              </div>
+              <div className="rank-card__stats">
                 <span
-                  key={tag}
-                  className={`tag${LICENSE_TAGS.has(tag) ? " tag--license" : ""}`}
+                  className="delta"
+                  aria-label={`+${item.deltaStars.toLocaleString()}`}
                 >
-                  {tag}
+                  +{item.deltaStars.toLocaleString()}
                 </span>
-              ))}
+                <div className="rank-card__actions">
+                  <FavoriteButton
+                    owner={item.owner}
+                    name={item.name}
+                    snapshot={{
+                      description: item.description,
+                      deltaStars: item.deltaStars,
+                      health: item.health,
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-icon chart-trigger"
+                    aria-label={t("cta.chart")}
+                    title={t("cta.chart")}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setChartOpen(true);
+                    }}
+                  >
+                    <ChartIcon />
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-        <div className="rank-card__meta">
-          <span className="delta">
-            +{item.deltaStars.toLocaleString()} ★
-          </span>
-          <HealthDot health={item.health} label={healthLabel} />
-          <button
-            type="button"
-            className="btn-ghost chart-trigger"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setChartOpen(true);
-            }}
-          >
-            {t("cta.chart")}
-          </button>
+
+            {item.description && (
+              <p className="rank-card__desc">{item.description}</p>
+            )}
+
+            <div className="rank-card__bottom">
+              {hasChips && (
+                <div className="rank-card__chips">
+                  {item.triggers?.map((trigger) => (
+                    <span key={trigger} className={signalBadgeClass(trigger)}>
+                      {trigger}
+                    </span>
+                  ))}
+                  {item.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className={`tag${LICENSE_TAGS.has(tag) ? " tag--license" : ""}`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+              </div>
+            )}
+
+              <div className="rank-card__status">
+                <HealthDot health={item.health} label={healthLabel} />
+              </div>
+            </div>
+          </div>
         </div>
       </Link>
       {hasAltStrip && (

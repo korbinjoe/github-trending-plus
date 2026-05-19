@@ -44,7 +44,7 @@
     "openExternal": "Open in star-history ↗"
   },
   "footer": {
-    "data": "Data from GitHub API · Unofficial"
+    "data": "Data from GitHub API"
   },
   "repo": {
     "back": "Back to chart",
@@ -122,6 +122,7 @@
     "shell": "Empty shell"
   },
   "badge": {
+    "shell": "Shell risk",
     "verified": "Summary verified"
   },
   "alt": {
@@ -129,6 +130,8 @@
     "compare": "Compare"
   },
   "feed": {
-    "loadMore": "Load more"
+    "loadMore": "और लोड करें",
+    "loading": "रैंकिंग लोड हो रही है",
+    "loadingMore": "लोड हो रहा है…"
   }
 }

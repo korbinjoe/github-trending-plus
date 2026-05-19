@@ -2,6 +2,7 @@ import type { RepoDetail } from "@github-trending/core/types";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatCompactNumber, formatRelativePush } from "@/lib/format";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { RepoAlternativesPanel } from "./RepoAlternativesPanel";
 
 interface RepoDetailViewProps {
@@ -58,9 +59,21 @@ export async function RepoDetailView({ detail, locale }: RepoDetailViewProps) {
         ← {t("repo.back")}
       </Link>
 
-      <h1 className="repo-title">
-        {detail.owner} / {detail.name}
-      </h1>
+      <div className="repo-title-row">
+        <h1 className="repo-title">
+          {detail.owner} / {detail.name}
+        </h1>
+        <FavoriteButton
+          owner={detail.owner}
+          name={detail.name}
+          variant="labeled"
+          snapshot={{
+            description: detail.description,
+            deltaStars: detail.deltaStars,
+            health: detail.health,
+          }}
+        />
+      </div>
 
       <div className="summary-row">
         <p className="summary">{detail.description}</p>

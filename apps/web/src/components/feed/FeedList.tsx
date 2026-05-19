@@ -9,6 +9,7 @@ import {
   useQueryState,
 } from "nuqs";
 import { useCallback, useEffect, useState } from "react";
+import { FeedListSkeleton } from "./FeedListSkeleton";
 import { RankCard } from "./RankCard";
 
 interface FeedListProps {
@@ -40,6 +41,9 @@ export function FeedList({ onUpdatedAt }: FeedListProps) {
     async (nextCursor?: string) => {
       setLoading(true);
       setError(null);
+      if (!nextCursor) {
+        setItems([]);
+      }
 
       const params = new URLSearchParams({ view, period });
       if (lang) params.set("lang", lang);
@@ -83,8 +87,16 @@ export function FeedList({ onUpdatedAt }: FeedListProps) {
     return <p className="feed-empty">{t("feed")}</p>;
   }
 
+  if (loading && items.length === 0) {
+    return (
+      <section className="feed-section" aria-live="polite">
+        <FeedListSkeleton label={loadMoreT("loading")} />
+      </section>
+    );
+  }
+
   return (
-    <section>
+    <section className="feed-section" aria-live="polite">
       <ol className="rank-list">
         {items.map((item) => (
           <RankCard key={`${item.slug}-${item.rank}`} item={item} />
@@ -97,8 +109,9 @@ export function FeedList({ onUpdatedAt }: FeedListProps) {
             onClick={() => loadFeed(cursor)}
             disabled={loading}
             className="btn-ghost"
+            aria-busy={loading}
           >
-            {loadMoreT("loadMore")}
+            {loading ? loadMoreT("loadingMore") : loadMoreT("loadMore")}
           </button>
         </div>
       )}
