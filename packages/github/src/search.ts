@@ -6,6 +6,7 @@ import {
   MIN_STARS_SEARCH,
   type IngestLanguage,
 } from "./config";
+import type { IngestLogger } from "./ingest-logger";
 import type { SearchRepoNode } from "./search-node";
 
 export type { SearchRepoNode } from "./search-node";
@@ -47,6 +48,7 @@ export async function searchCandidatesForLanguage(
   client: GitHubGraphQLClient,
   language: IngestLanguage,
   cap = DAILY_CANDIDATE_CAP_PER_LANGUAGE,
+  logger?: IngestLogger,
 ): Promise<SearchRepoNode[]> {
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - 30);
@@ -54,7 +56,10 @@ export async function searchCandidatesForLanguage(
 
   const results: SearchRepoNode[] = [];
   let after: string | null = null;
+  let page = 0;
   const q = buildQuery(language);
+
+  logger?.info("search_start", { language, cap });
 
   type SearchResult = {
     search: {
@@ -64,6 +69,8 @@ export async function searchCandidatesForLanguage(
   };
 
   while (results.length < cap) {
+    page += 1;
+    logger?.info("search_page_fetch", { language, page });
     const response: { data: SearchResult } = await client.query<SearchResult>(
       SEARCH_QUERY,
       { q, after },
@@ -77,11 +84,20 @@ export async function searchCandidatesForLanguage(
     await enrichCommits30d(client, nodes, sinceIso);
     results.push(...nodes);
 
+    logger?.info("search_page_done", {
+      language,
+      page,
+      pageSize: nodes.length,
+      total: results.length,
+    });
+
     if (!data.search.pageInfo.hasNextPage || results.length >= cap) {
       break;
     }
     after = data.search.pageInfo.endCursor;
   }
 
-  return results.slice(0, cap);
+  const sliced = results.slice(0, cap);
+  logger?.info("search_done", { language, total: sliced.length });
+  return sliced;
 }

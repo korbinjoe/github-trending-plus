@@ -1,46 +1,18 @@
 import {
   buildRankedRepo,
-  computeDeltaStars,
   computeRelativeVelocityPercentile,
   isEarlySignal,
-  shouldExclude,
   sortByVelocity,
-  type RepoSignals,
 } from "@github-trending/core";
 import type { FeedPeriod, FeedView } from "@github-trending/core/types";
 import type { Database } from "@github-trending/db";
-import {
-  periodMetrics,
-  rankingRuns,
-  repositories,
-  repositorySnapshots,
-} from "@github-trending/db";
-import { and, desc, eq, gte } from "drizzle-orm";
+import { periodMetrics, rankingRuns } from "@github-trending/db";
+import { desc, eq } from "drizzle-orm";
+import { logEvery, type IngestLogger } from "./ingest-logger";
+import { type RankingMetricInput } from "./ranking-inputs";
 
-const PERIOD_DAYS: Record<FeedPeriod, number> = {
-  today: 1,
-  week: 7,
-  month: 30,
-  halfYear: 180,
-  year: 365,
-};
-
-function periodStart(period: FeedPeriod): Date {
-  const days = PERIOD_DAYS[period];
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - days);
-  return d;
-}
-
-interface RepoMetricInput {
-  repoId: string;
-  owner: string;
-  name: string;
-  language: string | null;
-  deltaStars: number;
-  totalStars: number;
-  commits30d: number;
-}
+const WRITE_LOG_STEP = 50;
+const INSERT_CHUNK = 100;
 
 export interface RankingBatchResult {
   rankingRunId: string;
@@ -48,10 +20,26 @@ export interface RankingBatchResult {
   errorCount: number;
 }
 
+/** Mark abandoned runs so feed queries only use completed batches. */
+export async function failStaleRankingRuns(db: Database): Promise<number> {
+  const updated = await db
+    .update(rankingRuns)
+    .set({
+      status: "failed",
+      completedAt: new Date(),
+      errorCount: 1,
+    })
+    .where(eq(rankingRuns.status, "running"))
+    .returning({ id: rankingRuns.id });
+  return updated.length;
+}
+
 export async function runRankingBatch(
   db: Database,
   period: FeedPeriod,
   view: FeedView,
+  inputs: RankingMetricInput[],
+  logger?: IngestLogger,
 ): Promise<RankingBatchResult> {
   const [run] = await db
     .insert(rankingRuns)
@@ -61,59 +49,12 @@ export async function runRankingBatch(
   if (!run) throw new Error("Failed to create ranking run");
 
   try {
-    const repos = await db.select().from(repositories);
-    const inputs: RepoMetricInput[] = [];
-    const since = periodStart(period);
-
-    for (const repo of repos) {
-      const signals: RepoSignals = {
-        owner: repo.owner,
-        name: repo.name,
-        topics: (repo.topics as string[]) ?? [],
-        commits30d: 0,
-        totalStars: 0,
-      };
-
-      const latest = await db
-        .select()
-        .from(repositorySnapshots)
-        .where(eq(repositorySnapshots.repoId, repo.id))
-        .orderBy(desc(repositorySnapshots.capturedAt))
-        .limit(1);
-
-      const previous = await db
-        .select()
-        .from(repositorySnapshots)
-        .where(
-          and(
-            eq(repositorySnapshots.repoId, repo.id),
-            gte(repositorySnapshots.capturedAt, since),
-          ),
-        )
-        .orderBy(repositorySnapshots.capturedAt)
-        .limit(1);
-
-      const latestSnap = latest[0];
-      const prevSnap = previous[0];
-      if (!latestSnap) continue;
-
-      signals.commits30d = latestSnap.commits30d;
-      signals.totalStars = latestSnap.stars;
-      if (shouldExclude(signals)) continue;
-
-      inputs.push({
-        repoId: repo.id,
-        owner: repo.owner,
-        name: repo.name,
-        language: repo.language,
-        deltaStars: computeDeltaStars(
-          latestSnap.stars,
-          prevSnap?.stars ?? latestSnap.stars,
-        ),
-        totalStars: latestSnap.stars,
-        commits30d: latestSnap.commits30d,
-      });
-    }
+    logger?.info("ranking_start", {
+      period,
+      view,
+      rankingRunId: run.id,
+      candidates: inputs.length,
+    });
 
     const byLang = new Map<string, number[]>();
     for (const r of inputs) {
@@ -150,13 +91,30 @@ export async function runRankingBatch(
     const slugToInput = new Map(
       filtered.map((r) => [`${r.owner}/${r.name}`, r]),
     );
+    const toWrite = sorted.length;
+    const earlyCandidates = withRank.filter((r) => r.ranked.isEarly).length;
 
+    logger?.info("ranking_write_start", {
+      period,
+      view,
+      toWrite,
+      earlyCandidates,
+    });
+
+    if (earlyCandidates === 0 && view === "early") {
+      logger?.warn("early_signal_empty", {
+        period,
+        hint: "No repos matched stars<5k and top-20% relative growth in this period",
+      });
+    }
+
+    const rows: (typeof periodMetrics.$inferInsert)[] = [];
     let rank = 1;
     for (const item of sorted) {
       const input = slugToInput.get(`${item.owner}/${item.name}`);
       if (!input) continue;
 
-      await db.insert(periodMetrics).values({
+      rows.push({
         repoId: input.repoId,
         rankingRunId: run.id,
         period,
@@ -172,6 +130,28 @@ export async function runRankingBatch(
         relativeVelocityPercentile: input.percentile,
       });
     }
+
+    for (let i = 0; i < rows.length; i += INSERT_CHUNK) {
+      await db.insert(periodMetrics).values(rows.slice(i, i + INSERT_CHUNK));
+      if (logger) {
+        logEvery(
+          logger,
+          "ranking_write_progress",
+          Math.min(i + INSERT_CHUNK, rows.length),
+          rows.length,
+          WRITE_LOG_STEP,
+          { period, view },
+        );
+      }
+    }
+
+    logger?.info("ranking_complete", {
+      period,
+      view,
+      rankingRunId: run.id,
+      reposRanked: sorted.length,
+      earlyCandidates,
+    });
 
     await db
       .update(rankingRuns)

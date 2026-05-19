@@ -11,8 +11,9 @@ dotenv.config({
 });
 
 const ranking = process.argv.includes("--ranking");
+const rankingOnly = process.argv.includes("--ranking-only");
 
-runIngest({ ranking })
+runIngest({ ranking, rankingOnly })
   .then((r) => {
     console.log("Ingest complete", r);
     process.exit(0);
