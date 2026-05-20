@@ -1,25 +1,26 @@
 import { Link } from "@/i18n/navigation";
 import type { FeedItem } from "@github-trending/core/types";
-import { getTranslations } from "next-intl/server";
 
 interface AlternativesStripServerProps {
   alternatives: FeedItem["alternatives"];
   compareUrl?: string;
+  considerLabel: string;
+  compareLabel: string;
 }
 
-export async function AlternativesStripServer({
+export function AlternativesStripServer({
   alternatives,
   compareUrl,
+  considerLabel,
+  compareLabel,
 }: AlternativesStripServerProps) {
-  const t = await getTranslations("alt");
-
   if (alternatives.length === 0) return null;
 
   const comparePath = compareUrl?.replace(/^https?:\/\/[^/]+/, "") ?? "";
 
   return (
     <div className="alt-strip">
-      <span className="alt-strip__label">{t("consider")}</span>
+      <span className="alt-strip__label">{considerLabel}</span>
       <span className="alt-strip__links">
         {alternatives.map((alt, index) => (
           <span key={alt.slug}>
@@ -35,7 +36,7 @@ export async function AlternativesStripServer({
       </span>
       {comparePath && (
         <Link href={comparePath} className="alt-strip__compare btn-ghost">
-          {t("compare")}
+          {compareLabel}
         </Link>
       )}
     </div>

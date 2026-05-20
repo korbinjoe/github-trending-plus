@@ -1,6 +1,5 @@
 import { Link } from "@/i18n/navigation";
-import type { FeedItem } from "@github-trending/core/types";
-import { getTranslations } from "next-intl/server";
+import type { ApiHealthStatus, FeedItem } from "@github-trending/core/types";
 import { AlternativesStripServer } from "./AlternativesStripServer";
 import { HealthDot } from "./HealthDot";
 import { PhBadge } from "@/components/ph/PhBadge";
@@ -20,14 +19,20 @@ function signalBadgeClass(trigger: string): string {
   return "badge-signal badge-signal--trigger";
 }
 
+export type RankCardLabels = {
+  healthLabel: (health: ApiHealthStatus) => string;
+  earlyLabel: string;
+  altConsider: string;
+  altCompare: string;
+};
+
 interface RankCardServerProps {
   item: FeedItem;
+  labels: RankCardLabels;
 }
 
-export async function RankCardServer({ item }: RankCardServerProps) {
-  const t = await getTranslations();
-  const tabT = await getTranslations("tab");
-  const healthLabel = t(`health.${item.health}`);
+export function RankCardServer({ item, labels }: RankCardServerProps) {
+  const healthLabel = labels.healthLabel(item.health);
   const hasAltStrip = item.alternatives.length > 0;
   const isTopRank = item.rank <= 3;
   const hasChips =
@@ -54,7 +59,7 @@ export async function RankCardServer({ item }: RankCardServerProps) {
                 <span className="owner">{item.owner}</span>
                 <span className="repo">/ {item.name}</span>
                 {item.isEarlySignal && (
-                  <span className="badge-early">{tabT("early")}</span>
+                  <span className="badge-early">{labels.earlyLabel}</span>
                 )}
               </div>
               <div className="rank-card__stats">
@@ -103,6 +108,8 @@ export async function RankCardServer({ item }: RankCardServerProps) {
         <AlternativesStripServer
           alternatives={item.alternatives}
           compareUrl={item.compareUrl}
+          considerLabel={labels.altConsider}
+          compareLabel={labels.altCompare}
         />
       )}
     </li>

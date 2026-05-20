@@ -4,7 +4,6 @@ import { Link } from "@/i18n/navigation";
 import { formatCompactNumber, formatRelativePush } from "@/lib/format";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { PhDetailPanel } from "@/components/ph/PhDetailPanel";
-import { RepoAlternativesPanel } from "./RepoAlternativesPanel";
 
 interface RepoDetailViewProps {
   detail: RepoDetail;
@@ -61,8 +60,6 @@ export async function RepoDetailView({ detail, locale }: RepoDetailViewProps) {
     .map((p) => p.trim())
     .filter(Boolean)
     .slice(0, 2);
-
-  const comparePath = detail.compareUrl.replace(/^https?:\/\/[^/]+/, "");
 
   return (
     <>
@@ -213,12 +210,6 @@ export async function RepoDetailView({ detail, locale }: RepoDetailViewProps) {
           </a>
         )}
       </div>
-
-      <RepoAlternativesPanel
-        primary={detail}
-        alternatives={detail.alternatives}
-        comparePath={comparePath}
-      />
 
       <section className="panel">
         <h2 className="panel__title">{t("repo.readme.title")}</h2>
