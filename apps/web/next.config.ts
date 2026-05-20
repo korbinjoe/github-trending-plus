@@ -16,6 +16,13 @@ const nextConfig: NextConfig = {
     "@github-trending/db",
     "@github-trending/github",
   ],
+  experimental: {
+    optimizePackageImports: [
+      "drizzle-orm",
+      "next-intl",
+      "@github-trending/core",
+    ],
+  },
 };
 
 export default withNextIntl(nextConfig);

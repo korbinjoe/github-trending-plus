@@ -90,6 +90,7 @@
   },
   "cta": {
     "chart": "曲线",
+    "github": "在 GitHub 打开",
     "compare": "对比",
     "openCharts": "打开曲线",
     "analyze": "OSS Insight 分析"

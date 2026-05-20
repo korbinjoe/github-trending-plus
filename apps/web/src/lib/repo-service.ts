@@ -9,11 +9,11 @@ import { getPhSignalForRepoId } from "@github-trending/producthunt";
 import { getDb } from "@github-trending/db";
 import {
   periodMetrics,
-  rankingRuns,
   repositories,
   repositorySnapshots,
 } from "@github-trending/db";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import { getCachedLatestCompletedRun } from "./ranking-run-cache";
 import {
   compareUrl,
   githubRepoUrl,
@@ -27,22 +27,6 @@ const ALT_LIMIT = 5;
 function parsePeriod(period?: string): FeedPeriod {
   const parsed = FeedPeriodSchema.safeParse(period);
   return parsed.success ? parsed.data : DEFAULT_PERIOD;
-}
-
-async function getLatestVelocityRun(db: ReturnType<typeof getDb>, period: FeedPeriod) {
-  const rows = await db
-    .select()
-    .from(rankingRuns)
-    .where(
-      and(
-        eq(rankingRuns.period, period),
-        eq(rankingRuns.view, "velocity"),
-        eq(rankingRuns.status, "completed"),
-      ),
-    )
-    .orderBy(desc(rankingRuns.completedAt))
-    .limit(1);
-  return rows[0] ?? null;
 }
 
 export async function getRepoDetail(
@@ -68,7 +52,7 @@ export async function getRepoDetail(
     .orderBy(desc(repositorySnapshots.capturedAt))
     .limit(1);
 
-  const run = await getLatestVelocityRun(db, feedPeriod);
+  const run = await getCachedLatestCompletedRun(feedPeriod, "velocity");
   let metric = null;
   if (run) {
     const metricRows = await db
@@ -95,44 +79,70 @@ export async function getRepoDetail(
     ALT_LIMIT,
   );
 
-  const alternatives: RepoDetail["alternatives"] = [];
-  for (const edge of altEdges) {
-    const candidateRows = await db
-      .select()
-      .from(repositories)
-      .where(eq(repositories.fullName, edge.slug))
-      .limit(1);
-    const candidate = candidateRows[0];
-    if (!candidate) continue;
-
-    const candidateMetric = run
+  const altSlugs = altEdges.map((e) => e.slug);
+  const candidateRows =
+    altSlugs.length > 0
       ? await db
           .select()
-          .from(periodMetrics)
-          .where(
-            and(
-              eq(periodMetrics.repoId, candidate.id),
-              eq(periodMetrics.rankingRunId, run.id),
-            ),
-          )
-          .limit(1)
+          .from(repositories)
+          .where(inArray(repositories.fullName, altSlugs))
       : [];
+  const candidateBySlug = new Map(
+    candidateRows.map((r) => [`${r.owner}/${r.name}`, r]),
+  );
+  const candidateIds = candidateRows.map((r) => r.id);
 
-    const candidateSnap = await db
+  const metricsByRepoId = new Map<
+    string,
+    (typeof periodMetrics.$inferSelect)
+  >();
+  if (run && candidateIds.length > 0) {
+    const metricRows = await db
+      .select()
+      .from(periodMetrics)
+      .where(
+        and(
+          inArray(periodMetrics.repoId, candidateIds),
+          eq(periodMetrics.rankingRunId, run.id),
+        ),
+      );
+    for (const m of metricRows) {
+      metricsByRepoId.set(m.repoId, m);
+    }
+  }
+
+  const snapByRepoId = new Map<
+    string,
+    (typeof repositorySnapshots.$inferSelect)
+  >();
+  if (candidateIds.length > 0) {
+    const snapRows = await db
       .select()
       .from(repositorySnapshots)
-      .where(eq(repositorySnapshots.repoId, candidate.id))
-      .orderBy(desc(repositorySnapshots.capturedAt))
-      .limit(1);
+      .where(inArray(repositorySnapshots.repoId, candidateIds))
+      .orderBy(desc(repositorySnapshots.capturedAt));
+    for (const s of snapRows) {
+      if (!snapByRepoId.has(s.repoId)) {
+        snapByRepoId.set(s.repoId, s);
+      }
+    }
+  }
+
+  const alternatives: RepoDetail["alternatives"] = [];
+  for (const edge of altEdges) {
+    const candidate = candidateBySlug.get(edge.slug);
+    if (!candidate) continue;
+    const candidateMetric = metricsByRepoId.get(candidate.id);
+    const candidateSnap = snapByRepoId.get(candidate.id);
 
     alternatives.push({
       owner: candidate.owner,
       name: candidate.name,
       slug: edge.slug,
       description: candidate.description ?? "",
-      deltaStars: candidateMetric[0]?.deltaStars ?? 0,
-      totalStars: candidateSnap[0]?.stars ?? 0,
-      health: candidateMetric[0]?.health ?? "low",
+      deltaStars: candidateMetric?.deltaStars ?? 0,
+      totalStars: candidateSnap?.stars ?? 0,
+      health: candidateMetric?.health ?? "low",
       license: candidate.license,
       why: edge.why,
     });

@@ -1,11 +1,8 @@
 import type { FavoriteHydrateResult, FavoriteRepoRef } from "@github-trending/core/types";
 import { getDb } from "@github-trending/db";
-import {
-  periodMetrics,
-  rankingRuns,
-  repositories,
-} from "@github-trending/db";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { periodMetrics, repositories } from "@github-trending/db";
+import { and, eq, inArray } from "drizzle-orm";
+import { getCachedLatestCompletedRun } from "./ranking-run-cache";
 
 function normalizeRef(ref: FavoriteRepoRef): FavoriteRepoRef {
   return { owner: ref.owner.trim(), name: ref.name.trim() };
@@ -29,20 +26,7 @@ export async function hydrateFavorites(
     repoRows.map((r) => [r.fullName.toLowerCase(), r]),
   );
 
-  const latestRun = await db
-    .select()
-    .from(rankingRuns)
-    .where(
-      and(
-        eq(rankingRuns.period, "today"),
-        eq(rankingRuns.view, "velocity"),
-        eq(rankingRuns.status, "completed"),
-      ),
-    )
-    .orderBy(desc(rankingRuns.completedAt))
-    .limit(1);
-
-  const run = latestRun[0];
+  const run = await getCachedLatestCompletedRun("today", "velocity");
   const metricsByRepoId = new Map<
     string,
     (typeof periodMetrics.$inferSelect)

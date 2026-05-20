@@ -90,6 +90,7 @@
   },
   "cta": {
     "chart": "Chart",
+    "github": "Open on GitHub",
     "compare": "Compare",
     "openCharts": "Open charts",
     "analyze": "Analyze on OSS Insight"

@@ -5,6 +5,15 @@ import { and, asc, eq, gte, sql } from "drizzle-orm";
 
 const UPSERT_CHUNK = 100;
 
+let dailyByRepoCache: {
+  fromDate: string;
+  data: Map<string, StarHistoryPoint[]>;
+} | null = null;
+
+export function clearRepoStarDailyCache(): void {
+  dailyByRepoCache = null;
+}
+
 export type StarDailySource = "ossinsight" | "github";
 
 export async function upsertRepoStarDailyRows(
@@ -83,6 +92,10 @@ export async function loadAllRepoStarDailyByRepo(
   db: Database,
   fromDate: string,
 ): Promise<Map<string, StarHistoryPoint[]>> {
+  if (dailyByRepoCache?.fromDate === fromDate) {
+    return dailyByRepoCache.data;
+  }
+
   const rows = await db
     .select({
       repoId: repoStarDaily.repoId,
@@ -99,6 +112,7 @@ export async function loadAllRepoStarDailyByRepo(
     list.push({ date: String(row.date), stargazers: row.stars });
     byRepo.set(row.repoId, list);
   }
+  dailyByRepoCache = { fromDate, data: byRepo };
   return byRepo;
 }
 

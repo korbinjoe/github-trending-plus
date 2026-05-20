@@ -1,10 +1,7 @@
 import { getDb } from "@github-trending/db";
-import {
-  periodMetrics,
-  rankingRuns,
-  repositories,
-} from "@github-trending/db";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { periodMetrics, repositories } from "@github-trending/db";
+import { asc, eq } from "drizzle-orm";
+import { getCachedLatestCompletedRun } from "./ranking-run-cache";
 import { getSiteUrl, repoUrl } from "./site";
 
 function escapeXml(s: string): string {
@@ -32,20 +29,7 @@ export async function buildRssFeed(options?: {
 <description>Database not configured</description>
 </channel></rss>`;
   }
-  const latestRun = await db
-    .select()
-    .from(rankingRuns)
-    .where(
-      and(
-        eq(rankingRuns.period, "today"),
-        eq(rankingRuns.view, "velocity"),
-        eq(rankingRuns.status, "completed"),
-      ),
-    )
-    .orderBy(desc(rankingRuns.completedAt))
-    .limit(1);
-
-  const run = latestRun[0];
+  const run = await getCachedLatestCompletedRun("today", "velocity");
   const pubDate = run?.completedAt?.toUTCString() ?? new Date().toUTCString();
 
   if (!run) {

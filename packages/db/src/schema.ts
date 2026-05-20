@@ -108,6 +108,12 @@ export const rankingRuns = pgTable(
   },
   (t) => [
     index("ranking_runs_period_view_idx").on(t.period, t.view, t.startedAt),
+    index("ranking_runs_completed_lookup_idx").on(
+      t.period,
+      t.view,
+      t.status,
+      t.completedAt,
+    ),
   ],
 );
 

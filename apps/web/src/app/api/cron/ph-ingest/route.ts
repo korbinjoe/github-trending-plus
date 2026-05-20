@@ -37,6 +37,8 @@ async function handlePhIngest(request: Request) {
 
     if (!result.skipped) {
       revalidateTag("feed");
+      revalidateTag("ranking");
+      revalidateTag("topics");
     }
 
     phLogger.info("cron_ph_ingest_complete", {

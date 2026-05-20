@@ -16,16 +16,17 @@ export function getSearchFuzzyThreshold(): number {
 
 export function buildKeywordMatchCondition(
   q: string,
-  threshold: number,
+  _threshold: number,
 ): SQL {
   const qLower = q.toLowerCase();
   const pattern = `%${escapeIlikePattern(q)}%`;
+  const nameLower = sql`lower(${repositories.fullName})`;
   const descLower = sql`lower(coalesce(${repositories.description}, ''))`;
 
+  // Filter: trigram % + ILIKE use GIN indexes; similarity() in WHERE forces seq scans.
   return or(
-    sql`similarity(lower(${repositories.fullName}), ${qLower}) >= ${threshold}`,
-    sql`similarity(${descLower}, ${qLower}) >= ${threshold}`,
-    sql`word_similarity(${qLower}, ${descLower}) >= ${threshold}`,
+    sql`${nameLower} % ${qLower}`,
+    sql`${descLower} % ${qLower}`,
     ilike(repositories.fullName, pattern),
     ilike(repositories.description, pattern),
   )!;
@@ -38,7 +39,8 @@ export function buildKeywordRelevanceSql(q: string, threshold: number): SQL {
   const minRelevance = threshold;
   const descLower = sql`lower(coalesce(${repositories.description}, ''))`;
 
-  const nameSim = sql`similarity(lower(${repositories.fullName}), ${qLower})`;
+  const nameLower = sql`lower(${repositories.fullName})`;
+  const nameSim = sql`similarity(${nameLower}, ${qLower})`;
   const descSim = sql`similarity(${descLower}, ${qLower})`;
   const descWordSim = sql`word_similarity(${qLower}, ${descLower})`;
   const nameSubstring = ilike(repositories.fullName, pattern);

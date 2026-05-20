@@ -1,11 +1,11 @@
 import type { FeedItem, SearchResponse } from "@github-trending/core/types";
 import { getDb } from "@github-trending/db";
-import {
-  periodMetrics,
-  rankingRuns,
-  repositories,
-} from "@github-trending/db";
-import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
+import { periodMetrics, repositories } from "@github-trending/db";
+import { and, asc, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
+
+/** Cap rows scored for keyword search (avoids sorting the full table). */
+const SEARCH_CANDIDATE_CAP = 400;
+import { getCachedLatestCompletedRun } from "./ranking-run-cache";
 import {
   buildKeywordMatchCondition,
   buildKeywordRelevanceSql,
@@ -41,20 +41,7 @@ export async function searchRepositories(params: {
     conditions.push(eq(repositories.language, params.lang));
   }
 
-  const latestRun = await db
-    .select()
-    .from(rankingRuns)
-    .where(
-      and(
-        eq(rankingRuns.period, "today"),
-        eq(rankingRuns.view, "velocity"),
-        eq(rankingRuns.status, "completed"),
-      ),
-    )
-    .orderBy(desc(rankingRuns.completedAt))
-    .limit(1);
-
-  const run = latestRun[0];
+  const run = await getCachedLatestCompletedRun("today", "velocity");
   const whereClause =
     conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -77,6 +64,23 @@ export async function searchRepositories(params: {
           asc(repositories.fullName),
         ];
 
+  let candidateIds: string[] | null = null;
+  if (params.q && whereClause) {
+    const candidates = await db
+      .select({ id: repositories.id })
+      .from(repositories)
+      .where(whereClause)
+      .limit(SEARCH_CANDIDATE_CAP);
+    candidateIds = candidates.map((c) => c.id);
+    if (candidateIds.length === 0) {
+      return { items: [], nextCursor: null };
+    }
+  }
+
+  const scopedWhere = candidateIds
+    ? and(whereClause, inArray(repositories.id, candidateIds))
+    : whereClause;
+
   const rows = await db
     .select({
       repo: repositories,
@@ -84,7 +88,7 @@ export async function searchRepositories(params: {
     })
     .from(repositories)
     .leftJoin(periodMetrics, metricJoin)
-    .where(whereClause)
+    .where(scopedWhere)
     .orderBy(...orderBy)
     .offset(params.offset)
     .limit(params.limit + 1);

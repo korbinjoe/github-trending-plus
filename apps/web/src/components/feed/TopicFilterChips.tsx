@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { parseAsString, useQueryState } from "nuqs";
+import { feedTopicParser } from "@/lib/feed-query-nuqs";
+import { useQueryState } from "nuqs";
 import { useMemo } from "react";
 
 interface TopicFilterChipsProps {
@@ -10,7 +11,7 @@ interface TopicFilterChipsProps {
 
 export function TopicFilterChips({ topicFilters }: TopicFilterChipsProps) {
   const t = useTranslations("filter");
-  const [topic, setTopic] = useQueryState("topic", parseAsString.withDefault(""));
+  const [topic, setTopic] = useQueryState("topic", feedTopicParser);
 
   const chips = useMemo(() => {
     const seen = new Set<string>();

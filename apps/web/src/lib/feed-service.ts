@@ -7,12 +7,9 @@ import {
 import { getAlternativesForRepos } from "@github-trending/github";
 import { getPhSignalsForRepoIds } from "@github-trending/producthunt";
 import { getDb } from "@github-trending/db";
-import {
-  periodMetrics,
-  rankingRuns,
-  repositories,
-} from "@github-trending/db";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { periodMetrics, repositories } from "@github-trending/db";
+import { and, asc, eq, sql } from "drizzle-orm";
+import { getCachedLatestCompletedRun } from "./ranking-run-cache";
 import { compareUrl } from "./site";
 
 const PAGE_SIZE = 24;
@@ -24,30 +21,24 @@ export async function getFeed(params: {
   topic?: string;
   cursor?: string;
   includeNoise?: boolean;
+  /** When true with cursor, returns items from rank 1 through current page (SSR load-more). */
+  accumulate?: boolean;
 }): Promise<FeedResponse> {
   const view = FeedViewSchema.parse(params.view);
   const period = FeedPeriodSchema.parse(params.period);
   const db = getDb();
 
-  const latestRun = await db
-    .select()
-    .from(rankingRuns)
-    .where(
-      and(
-        eq(rankingRuns.period, period),
-        eq(rankingRuns.view, view),
-        eq(rankingRuns.status, "completed"),
-      ),
-    )
-    .orderBy(desc(rankingRuns.completedAt))
-    .limit(1);
-
-  const run = latestRun[0];
+  const run = await getCachedLatestCompletedRun(period, view);
   if (!run) {
     return { items: [], nextCursor: null, rankingRunId: null, updatedAt: null };
   }
 
-  const offset = params.cursor ? Number.parseInt(params.cursor, 10) : 0;
+  const pageOffset = params.cursor ? Number.parseInt(params.cursor, 10) : 0;
+  const offset = params.accumulate && params.cursor ? 0 : pageOffset;
+  const fetchLimit =
+    params.accumulate && params.cursor
+      ? pageOffset + PAGE_SIZE + 1
+      : PAGE_SIZE + 1;
 
   const conditions = [
     eq(periodMetrics.rankingRunId, run.id),
@@ -79,10 +70,11 @@ export async function getFeed(params: {
     .where(and(...conditions))
     .orderBy(asc(periodMetrics.velocityRank))
     .offset(offset)
-    .limit(PAGE_SIZE + 1);
+    .limit(fetchLimit);
 
-  const hasMore = rows.length > PAGE_SIZE;
-  const page = hasMore ? rows.slice(0, PAGE_SIZE) : rows;
+  const pageSize = params.accumulate && params.cursor ? fetchLimit - 1 : PAGE_SIZE;
+  const hasMore = rows.length > pageSize;
+  const page = hasMore ? rows.slice(0, pageSize) : rows;
 
   const repoIds = page.map(({ repo }) => repo.id);
   const phByRepo = await getPhSignalsForRepoIds(db, repoIds);
@@ -118,9 +110,11 @@ export async function getFeed(params: {
     };
   });
 
+  const nextOffset = params.accumulate && params.cursor ? pageOffset + PAGE_SIZE : offset + PAGE_SIZE;
+
   return {
     items,
-    nextCursor: hasMore ? String(offset + PAGE_SIZE) : null,
+    nextCursor: hasMore ? String(nextOffset) : null,
     rankingRunId: run.id,
     updatedAt: run.completedAt?.toISOString() ?? null,
   };

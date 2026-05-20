@@ -2,7 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { TopicFilterChips } from "@/components/feed/TopicFilterChips";
-import { parseAsBoolean, parseAsString, parseAsStringEnum, useQueryState } from "nuqs";
+import {
+  feedHideShellsParser,
+  feedLangParser,
+  feedPeriodParser,
+  feedViewParser,
+} from "@/lib/feed-query-nuqs";
+import { useQueryState } from "nuqs";
 
 const PERIODS = ["today", "week", "month", "halfYear", "year"] as const;
 const VIEWS = ["velocity", "early"] as const;
@@ -25,18 +31,12 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
   const legendT = useTranslations("legend");
   const badgeT = useTranslations("badge");
 
-  const [view, setView] = useQueryState(
-    "view",
-    parseAsStringEnum([...VIEWS]).withDefault("velocity"),
-  );
-  const [period, setPeriod] = useQueryState(
-    "period",
-    parseAsStringEnum([...PERIODS]).withDefault("today"),
-  );
-  const [lang, setLang] = useQueryState("lang", parseAsString.withDefault(""));
+  const [view, setView] = useQueryState("view", feedViewParser);
+  const [period, setPeriod] = useQueryState("period", feedPeriodParser);
+  const [lang, setLang] = useQueryState("lang", feedLangParser);
   const [hideShells, setHideShells] = useQueryState(
     "hideShells",
-    parseAsBoolean.withDefault(true),
+    feedHideShellsParser,
   );
 
   return (

@@ -44,6 +44,8 @@ async function handleIngest(request: Request) {
   try {
     const result = await runIngest({ ranking, logger: ingestLogger });
     revalidateTag("feed");
+    revalidateTag("ranking");
+    revalidateTag("topics");
 
     ingestLogger.info("cron_ingest_complete", {
       durationMs: Date.now() - started,

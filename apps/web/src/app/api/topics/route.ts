@@ -1,5 +1,5 @@
 import { errorResponse, jsonResponse, withRateLimit } from "@/lib/api-utils";
-import { getSnapshotTopicFilters } from "@/lib/topic-service";
+import { getCachedSnapshotTopicFilters } from "@/lib/topic-cache";
 import { unstable_cache } from "next/cache";
 
 export const revalidate = 300;
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   const cached = unstable_cache(
     async () => {
-      const topics = await getSnapshotTopicFilters();
+      const topics = await getCachedSnapshotTopicFilters();
       return { topics };
     },
     ["snapshot-topic-filters"],

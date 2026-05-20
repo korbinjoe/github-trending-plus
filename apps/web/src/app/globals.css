@@ -12,8 +12,8 @@
   --color-accent-dim: #2a9d63;
   --color-warn: #f0b429;
   --color-danger: #f07178;
-  --font-sans: "DM Sans", "Noto Sans SC", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: var(--font-dm-sans), var(--font-noto-sc), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
   --radius-card: 10px;
   --max-w-content: 960px;
 }

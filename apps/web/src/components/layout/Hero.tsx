@@ -1,14 +1,12 @@
-"use client";
-
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 interface HeroProps {
   updatedAt?: string | null;
 }
 
-export function Hero({ updatedAt }: HeroProps) {
-  const t = useTranslations("hero");
+export async function Hero({ updatedAt }: HeroProps) {
+  const t = await getTranslations("hero");
   const date = updatedAt
     ? new Date(updatedAt).toISOString().slice(0, 16).replace("T", " ")
     : "—";
