@@ -11,7 +11,7 @@
   },
   "search": {
     "title": "搜索已收录仓库",
-    "scopeNote": "结果来自 GitHub Trending+ 已 ingest 的仓库，并非全 GitHub。",
+    "scopeNote": "结果来自 GitHub Trending+ 已 ingest 的仓库，并非全 GitHub。关键词搜索支持拼写容错。",
     "placeholder": "仓库名、描述或关键词…",
     "headerPlaceholder": "搜索…",
     "submit": "搜索",

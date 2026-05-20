@@ -67,6 +67,22 @@ pnpm db:push
 
 > **注意**：`db:push` 会直接修改生产库结构，首次部署前执行；后续 schema 变更请在维护窗口操作并备份。
 
+### 1.3 模糊搜索（pg_trgm）
+
+关键词模糊搜索依赖 Postgres 扩展 `pg_trgm` 与 GIN 索引。在 `db:push` 之后执行：
+
+```bash
+pnpm db:trgm
+```
+
+该命令运行 `packages/db/scripts/pg_trgm_search.sql`（`CREATE EXTENSION` + trigram 索引）。
+
+**生产注意**：
+
+- Neon / Supabase 通常已预装 `pg_trgm`；若 `CREATE EXTENSION` 失败，请在控制台启用扩展或由 DBA 预装后再跑 `pnpm db:trgm`。
+- 需要数据库用户具备 `CREATE EXTENSION` 权限（Neon 主角色一般可以）。
+- 可选环境变量 `SEARCH_FUZZY_THRESHOLD`（默认 `0.25`）调节相似度阈值，见 `.env.example`。
+
 ---
 
 ## 2. 准备 GitHub Token

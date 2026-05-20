@@ -7,6 +7,7 @@ import type { FeedItem } from "@github-trending/core/types";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { PhBadge } from "@/components/ph/PhBadge";
+import { HighlightedText } from "@/components/search/HighlightedText";
 import { AlternativesStrip } from "./AlternativesStrip";
 import { HealthDot } from "./HealthDot";
 
@@ -20,6 +21,8 @@ const LICENSE_TAGS = new Set([
 
 interface RankCardProps {
   item: FeedItem;
+  /** When set (e.g. on search results), matches are highlighted in title and description. */
+  highlightQuery?: string;
 }
 
 function signalBadgeClass(trigger: string): string {
@@ -42,7 +45,7 @@ function ChartIcon() {
   );
 }
 
-export function RankCard({ item }: RankCardProps) {
+export function RankCard({ item, highlightQuery }: RankCardProps) {
   const t = useTranslations();
   const tabT = useTranslations("tab");
   const [chartOpen, setChartOpen] = useState(false);
@@ -66,8 +69,27 @@ export function RankCard({ item }: RankCardProps) {
                 {item.rank}
               </span>
               <div className="rank-card__title">
-                <span className="owner">{item.owner}</span>
-                <span className="repo">/ {item.name}</span>
+                {highlightQuery ? (
+                  <>
+                    <HighlightedText
+                      text={item.owner}
+                      query={highlightQuery}
+                      className="owner"
+                    />
+                    <span className="repo">
+                      /{" "}
+                      <HighlightedText
+                        text={item.name}
+                        query={highlightQuery}
+                      />
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="owner">{item.owner}</span>
+                    <span className="repo">/ {item.name}</span>
+                  </>
+                )}
                 {item.isEarlySignal && (
                   <span className="badge-early">{tabT("early")}</span>
                 )}
@@ -107,7 +129,16 @@ export function RankCard({ item }: RankCardProps) {
             </div>
 
             {item.description && (
-              <p className="rank-card__desc">{item.description}</p>
+              <p className="rank-card__desc">
+                {highlightQuery ? (
+                  <HighlightedText
+                    text={item.description}
+                    query={highlightQuery}
+                  />
+                ) : (
+                  item.description
+                )}
+              </p>
             )}
 
             <div className="rank-card__bottom">

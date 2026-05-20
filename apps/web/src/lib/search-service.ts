@@ -5,8 +5,12 @@ import {
   rankingRuns,
   repositories,
 } from "@github-trending/db";
-import { and, asc, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
-import { escapeIlikePattern } from "./search-query";
+import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
+import {
+  buildKeywordMatchCondition,
+  buildKeywordRelevanceSql,
+  getSearchFuzzyThreshold,
+} from "./search-fuzzy";
 
 export async function searchRepositories(params: {
   q?: string;
@@ -19,13 +23,8 @@ export async function searchRepositories(params: {
   const conditions: SQL[] = [];
 
   if (params.q) {
-    const pattern = `%${escapeIlikePattern(params.q)}%`;
-    conditions.push(
-      or(
-        ilike(repositories.fullName, pattern),
-        ilike(repositories.description, pattern),
-      )!,
-    );
+    const threshold = getSearchFuzzyThreshold();
+    conditions.push(buildKeywordMatchCondition(params.q, threshold));
   }
 
   if (params.tag) {
@@ -66,6 +65,18 @@ export async function searchRepositories(params: {
       )
     : sql`false`;
 
+  const orderBy =
+    params.q != null && params.q.length > 0
+      ? [
+          desc(buildKeywordRelevanceSql(params.q, getSearchFuzzyThreshold())),
+          desc(sql`coalesce(${periodMetrics.totalStars}, 0)`),
+          asc(repositories.fullName),
+        ]
+      : [
+          desc(sql`coalesce(${periodMetrics.totalStars}, 0)`),
+          asc(repositories.fullName),
+        ];
+
   const rows = await db
     .select({
       repo: repositories,
@@ -74,10 +85,7 @@ export async function searchRepositories(params: {
     .from(repositories)
     .leftJoin(periodMetrics, metricJoin)
     .where(whereClause)
-    .orderBy(
-      desc(sql`coalesce(${periodMetrics.totalStars}, 0)`),
-      asc(repositories.fullName),
-    )
+    .orderBy(...orderBy)
     .offset(params.offset)
     .limit(params.limit + 1);
 

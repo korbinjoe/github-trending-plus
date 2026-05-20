@@ -10,6 +10,7 @@
     "db:generate": "pnpm --filter @github-trending/db generate",
     "db:migrate": "pnpm --filter @github-trending/db migrate",
     "db:push": "pnpm --filter @github-trending/db push",
+    "db:trgm": "pnpm --filter @github-trending/db trgm",
     "ingest:once": "pnpm --filter @github-trending/github ingest:once",
     "ranking:once": "pnpm --filter @github-trending/github ranking:once",
     "backfill:once": "pnpm --filter @github-trending/github backfill:once",

@@ -212,7 +212,16 @@ export function SearchResults() {
           </p>
           <ol className="rank-list">
             {items.map((item) => (
-              <RankCard key={`${item.slug}-${item.rank}`} item={item} />
+              <RankCard
+                key={`${item.slug}-${item.rank}`}
+                item={item}
+                highlightQuery={
+                  sanitizeSearchQuery(q) &&
+                  isKeywordQueryValid(sanitizeSearchQuery(q))
+                    ? sanitizeSearchQuery(q)
+                    : undefined
+                }
+              />
             ))}
           </ol>
           {cursor && (
