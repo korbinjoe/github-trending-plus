@@ -1,29 +1,51 @@
-import { computeDeltaStars } from "@github-trending/core";
+import {
+  computeDeltaStars,
+  periodStart,
+  resolveBaselineStars,
+  utcDateDaysAgo,
+} from "@github-trending/core";
 import type { FeedPeriod } from "@github-trending/core/types";
 import type { Database } from "@github-trending/db";
 import { repositorySnapshots } from "@github-trending/db";
 import { desc } from "drizzle-orm";
+import { loadAllRepoStarDailyByRepo } from "./repo-star-daily";
 
-const PERIOD_DAYS: Record<FeedPeriod, number> = {
-  today: 1,
-  week: 7,
-  month: 30,
-  halfYear: 180,
-  year: 365,
-};
+export { periodStart } from "@github-trending/core";
 
-export function periodStart(period: FeedPeriod): Date {
-  const days = PERIOD_DAYS[period];
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - days);
-  return d;
-}
+const STAR_DAILY_LOOKBACK_DAYS = 400;
 
 type SnapshotRow = typeof repositorySnapshots.$inferSelect;
 
 export interface RepoSnapshotPair {
   latest: SnapshotRow;
   baselineStars: number;
+}
+
+/** Snapshot pairs with daily-star baseline for week–year periods. */
+export async function loadPeriodSnapshotPairs(
+  db: Database,
+  period: FeedPeriod,
+): Promise<Map<string, RepoSnapshotPair>> {
+  const pairs = await loadRepoSnapshotPairs(db, period);
+  if (period === "today") {
+    return pairs;
+  }
+
+  const dailyByRepo = await loadAllRepoStarDailyByRepo(
+    db,
+    utcDateDaysAgo(STAR_DAILY_LOOKBACK_DAYS),
+  );
+
+  for (const [repoId, pair] of pairs) {
+    const daily = dailyByRepo.get(repoId) ?? [];
+    pair.baselineStars = resolveBaselineStars(
+      period,
+      pair.baselineStars,
+      daily,
+    );
+  }
+
+  return pairs;
 }
 
 /** Load all snapshots once, then derive latest + period baseline per repo. */

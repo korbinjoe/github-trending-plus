@@ -46,9 +46,23 @@
   "legend": {
     "title": "Card signals",
     "trigger": "Why hot now",
+    "ph": "Product Hunt launch",
     "license": "License",
     "health": "Sustainability",
     "shell": "Empty shell"
+  },
+  "ph": {
+    "badgeFeatured": "PH · {votes}↑ · Featured {date}",
+    "badgeLaunch": "PH · {votes}↑ · {date}",
+    "whyHot": "Featured on Product Hunt — {votes} upvotes, {date}",
+    "panelTitle": "Product Hunt launch",
+    "votes": "Upvotes",
+    "featured": "Featured",
+    "posted": "Posted",
+    "cta": "View on Product Hunt",
+    "panelAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
+    "attribution": "Some cards show a PH badge when linked to a recent Product Hunt launch.",
+    "footer": "Launch signals may include data from Product Hunt."
   },
   "badge": {
     "shell": "Shell risk",
@@ -86,7 +100,8 @@
     "openExternal": "Open in star-history ↗"
   },
   "footer": {
-    "data": "Data from GitHub API"
+    "data": "Data from GitHub API",
+    "ph": "Launch signals may include data from <phLink>Product Hunt</phLink>"
   },
   "repo": {
     "back": "Back to chart",
@@ -178,7 +193,9 @@
     "title": "About",
     "disclaimer": "This site is unofficial and not affiliated with GitHub.",
     "favoritesTitle": "Favorites (local storage)",
-    "favoritesBody": "Saved repositories are stored only in your current browser via localStorage. They are not tied to a GitHub account and are not synced across devices. Clearing site data or using another browser starts with an empty list."
+    "favoritesBody": "Saved repositories are stored only in your current browser via localStorage. They are not tied to a GitHub account and are not synced across devices. Clearing site data or using another browser starts with an empty list.",
+    "phTitle": "Product Hunt signals",
+    "phBody": "When configured, we ingest recent launches from Product Hunt and link them to indexed GitHub repositories. Orange PH badges show vote count and launch date and open the original post on producthunt.com. Data is attributed per Product Hunt API terms."
   },
   "empty": {
     "feed": "No ranking data yet. Run ingest to populate."

@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import type { FeedItem } from "@github-trending/core/types";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { PhBadge } from "@/components/ph/PhBadge";
 import { AlternativesStrip } from "./AlternativesStrip";
 import { HealthDot } from "./HealthDot";
 
@@ -49,7 +50,9 @@ export function RankCard({ item }: RankCardProps) {
   const hasAltStrip = item.alternatives.length > 0;
   const isTopRank = item.rank <= 3;
   const hasChips =
-    (item.triggers && item.triggers.length > 0) || item.tags.length > 0;
+    Boolean(item.phSignal) ||
+    (item.triggers && item.triggers.length > 0) ||
+    item.tags.length > 0;
 
   return (
     <li className={`rank-item${hasAltStrip ? " rank-item--alt" : ""}`}>
@@ -110,6 +113,15 @@ export function RankCard({ item }: RankCardProps) {
             <div className="rank-card__bottom">
               {hasChips && (
                 <div className="rank-card__chips">
+                  {item.phSignal && (
+                    <PhBadge
+                      signal={item.phSignal}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                    />
+                  )}
                   {item.triggers?.map((trigger) => (
                     <span key={trigger} className={signalBadgeClass(trigger)}>
                       {trigger}

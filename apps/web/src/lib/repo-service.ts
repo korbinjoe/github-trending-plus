@@ -1,6 +1,11 @@
-import type { FeedPeriod, RepoDetail } from "@github-trending/core/types";
+import {
+  FeedPeriodSchema,
+  type FeedPeriod,
+  type RepoDetail,
+} from "@github-trending/core/types";
 import { buildStarHistoryUrl } from "@github-trending/core";
 import { getAlternativesForRepo } from "@github-trending/github";
+import { getPhSignalForRepoId } from "@github-trending/producthunt";
 import { getDb } from "@github-trending/db";
 import {
   periodMetrics,
@@ -19,10 +24,33 @@ import {
 const DEFAULT_PERIOD: FeedPeriod = "today";
 const ALT_LIMIT = 5;
 
+function parsePeriod(period?: string): FeedPeriod {
+  const parsed = FeedPeriodSchema.safeParse(period);
+  return parsed.success ? parsed.data : DEFAULT_PERIOD;
+}
+
+async function getLatestVelocityRun(db: ReturnType<typeof getDb>, period: FeedPeriod) {
+  const rows = await db
+    .select()
+    .from(rankingRuns)
+    .where(
+      and(
+        eq(rankingRuns.period, period),
+        eq(rankingRuns.view, "velocity"),
+        eq(rankingRuns.status, "completed"),
+      ),
+    )
+    .orderBy(desc(rankingRuns.completedAt))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function getRepoDetail(
   owner: string,
   name: string,
+  period?: string,
 ): Promise<RepoDetail | null> {
+  const feedPeriod = parsePeriod(period);
   const db = getDb();
   const rows = await db
     .select()
@@ -40,20 +68,7 @@ export async function getRepoDetail(
     .orderBy(desc(repositorySnapshots.capturedAt))
     .limit(1);
 
-  const latestRun = await db
-    .select()
-    .from(rankingRuns)
-    .where(
-      and(
-        eq(rankingRuns.period, DEFAULT_PERIOD),
-        eq(rankingRuns.view, "velocity"),
-        eq(rankingRuns.status, "completed"),
-      ),
-    )
-    .orderBy(desc(rankingRuns.completedAt))
-    .limit(1);
-
-  const run = latestRun[0];
+  const run = await getLatestVelocityRun(db, feedPeriod);
   let metric = null;
   if (run) {
     const metricRows = await db
@@ -76,7 +91,7 @@ export async function getRepoDetail(
   const altEdges = await getAlternativesForRepo(
     db,
     repo.id,
-    DEFAULT_PERIOD,
+    feedPeriod,
     ALT_LIMIT,
   );
 
@@ -124,6 +139,7 @@ export async function getRepoDetail(
   }
 
   const compareSlugs = [slug, ...alternatives.map((a) => a.slug)].slice(0, 4);
+  const phSignal = await getPhSignalForRepoId(db, repo.id);
 
   return {
     owner: repo.owner,
@@ -139,6 +155,7 @@ export async function getRepoDetail(
     license: repo.license,
     language: repo.language,
     isEarlySignal: metric?.isEarlySignal === 1,
+    phSignal: phSignal ?? undefined,
     alternatives,
     compareUrl: compareUrl(compareSlugs),
     urls: {

@@ -1,8 +1,4 @@
-import {
-  computeRelativeVelocityPercentile,
-  shouldExclude,
-  type RepoSignals,
-} from "@github-trending/core";
+import { shouldExclude, type RepoSignals } from "@github-trending/core";
 import type { FeedPeriod } from "@github-trending/core/types";
 import type { Database } from "@github-trending/db";
 import { repositories } from "@github-trending/db";
@@ -10,7 +6,7 @@ import type { IngestLogger } from "./ingest-logger";
 import { logEvery } from "./ingest-logger";
 import {
   deltaStarsFromPair,
-  loadRepoSnapshotPairs,
+  loadPeriodSnapshotPairs,
   type RepoSnapshotPair,
 } from "./ranking-snapshots";
 
@@ -32,7 +28,7 @@ export async function buildRankingInputs(
   logger?: IngestLogger,
 ): Promise<RankingMetricInput[]> {
   const repos = await db.select().from(repositories);
-  const snapshotPairs = await loadRepoSnapshotPairs(db, period);
+  const snapshotPairs = await loadPeriodSnapshotPairs(db, period);
   const inputs: RankingMetricInput[] = [];
   const totalRepos = repos.length;
 

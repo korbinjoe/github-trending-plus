@@ -1,9 +1,11 @@
 import {
+  date,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   real,
   text,
   timestamp,
@@ -44,6 +46,25 @@ export const repositories = pgTable(
   (t) => [
     uniqueIndex("repositories_owner_name_idx").on(t.owner, t.name),
     index("repositories_language_idx").on(t.language),
+  ],
+);
+
+export const repoStarDaily = pgTable(
+  "repo_star_daily",
+  {
+    repoId: uuid("repo_id")
+      .notNull()
+      .references(() => repositories.id, { onDelete: "cascade" }),
+    date: date("date").notNull(),
+    stars: integer("stars").notNull(),
+    source: text("source").notNull().default("ossinsight"),
+    ingestedAt: timestamp("ingested_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.repoId, t.date] }),
+    index("repo_star_daily_repo_date_idx").on(t.repoId, t.date),
   ],
 );
 
@@ -164,7 +185,46 @@ export const ingestErrors = pgTable("ingest_errors", {
   owner: text("owner"),
   name: text("name"),
   message: text("message").notNull(),
+  source: text("source"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
+
+export const productHuntPosts = pgTable(
+  "product_hunt_posts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    phId: text("ph_id").notNull(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    tagline: text("tagline"),
+    description: text("description"),
+    phUrl: text("ph_url").notNull(),
+    websiteRedirect: text("website_redirect"),
+    resolvedUrl: text("resolved_url"),
+    githubOwner: text("github_owner"),
+    githubName: text("github_name"),
+    repoId: uuid("repo_id").references(() => repositories.id, {
+      onDelete: "set null",
+    }),
+    votesCount: integer("votes_count").notNull(),
+    commentsCount: integer("comments_count").notNull().default(0),
+    featuredAt: timestamp("featured_at", { withTimezone: true }),
+    postedAt: timestamp("posted_at", { withTimezone: true }).notNull(),
+    topics: jsonb("topics").$type<string[]>().notNull().default([]),
+    matchedVia: text("matched_via"),
+    ingestedAt: timestamp("ingested_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("product_hunt_posts_ph_id_idx").on(t.phId),
+    index("product_hunt_posts_repo_id_idx").on(t.repoId),
+    index("product_hunt_posts_posted_at_idx").on(t.postedAt),
+    index("product_hunt_posts_github_idx").on(t.githubOwner, t.githubName),
+  ],
+);

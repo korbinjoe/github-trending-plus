@@ -17,6 +17,8 @@ export default async function AboutPage({
         {t("favoritesTitle")}
       </h2>
       <p className="text-muted mt-2 text-sm">{t("favoritesBody")}</p>
+      <h2 className="text-lg font-semibold mt-8">{t("phTitle")}</h2>
+      <p className="text-muted mt-2 text-sm">{t("phBody")}</p>
       <h2 id="ranking" className="text-lg font-semibold mt-8">
         Ranking rules
       </h2>

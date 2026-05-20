@@ -14,6 +14,7 @@
     "@github-trending/core": "workspace:*",
     "@github-trending/db": "workspace:*",
     "@github-trending/github": "workspace:*",
+    "@github-trending/producthunt": "workspace:*",
     "@vercel/analytics": "^2.0.1",
     "drizzle-orm": "^0.38.3",
     "next": "^15.1.3",

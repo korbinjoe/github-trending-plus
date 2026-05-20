@@ -46,9 +46,23 @@
   "legend": {
     "title": "卡片信号",
     "trigger": "为何变热",
+    "ph": "Product Hunt 发布",
     "license": "许可证",
     "health": "可持续性",
     "shell": "空壳仓"
+  },
+  "ph": {
+    "badgeFeatured": "PH · {votes}↑ · 精选 {date}",
+    "badgeLaunch": "PH · {votes}↑ · {date}",
+    "whyHot": "Product Hunt 精选 — {votes} 票，{date}",
+    "panelTitle": "Product Hunt 发布",
+    "votes": "赞同",
+    "featured": "精选",
+    "posted": "发布",
+    "cta": "在 Product Hunt 查看",
+    "panelAttribution": "发布数据来自 Product Hunt。本站不展示 PH 评论或投票明细。",
+    "attribution": "部分卡片会显示 PH 徽章，表示关联了近期 Product Hunt 发布。",
+    "footer": "发布信号可能包含 Product Hunt 数据。"
   },
   "badge": {
     "shell": "空壳风险",
@@ -86,7 +100,8 @@
     "openExternal": "在 star-history 打开 ↗"
   },
   "footer": {
-    "data": "数据来自 GitHub API"
+    "data": "数据来自 GitHub API",
+    "ph": "发布信号可能包含来自 <phLink>Product Hunt</phLink> 的数据"
   },
   "repo": {
     "back": "返回榜单",
@@ -178,7 +193,9 @@
     "title": "关于",
     "disclaimer": "本站非 GitHub 官方，数据仅供参考。",
     "favoritesTitle": "收藏（本地存储）",
-    "favoritesBody": "收藏的仓库仅保存在当前浏览器的 localStorage 中，与 GitHub 账号无关，也不会跨设备同步。清除站点数据或使用其他浏览器时，列表为空。"
+    "favoritesBody": "收藏的仓库仅保存在当前浏览器的 localStorage 中，与 GitHub 账号无关，也不会跨设备同步。清除站点数据或使用其他浏览器时，列表为空。",
+    "phTitle": "Product Hunt 信号",
+    "phBody": "配置后，我们会摄取 Product Hunt 近期发布并与已收录 GitHub 仓库关联。橙色 PH 徽章显示赞同数与发布日期，点击可在 producthunt.com 查看原帖。数据使用遵循 Product Hunt API 条款并注明来源。"
   },
   "empty": {
     "feed": "暂无榜单数据，请先运行 ingest。"

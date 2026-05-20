@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import type { Database } from "@github-trending/db";
 import { ingestErrors, repositories, repositorySnapshots } from "@github-trending/db";
 import type { SearchRepoNode } from "./search";
+import { upsertRepoStarDailyToday } from "./repo-star-daily";
 
 function parseOwnerName(nameWithOwner: string): { owner: string; name: string } {
   const [owner, ...rest] = nameWithOwner.split("/");
@@ -70,6 +71,8 @@ export async function upsertRepositorySnapshot(
     pushedAt: node.pushedAt ? new Date(node.pushedAt) : null,
   });
 
+  await upsertRepoStarDailyToday(db, repoId, node.stargazerCount);
+
   return repoId;
 }
 
@@ -78,6 +81,7 @@ export async function logIngestError(
   owner: string | null,
   name: string | null,
   message: string,
+  source?: string,
 ): Promise<void> {
-  await db.insert(ingestErrors).values({ owner, name, message });
+  await db.insert(ingestErrors).values({ owner, name, message, source });
 }

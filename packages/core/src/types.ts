@@ -17,6 +17,15 @@ export const AlternativeItemSchema = z.object({
   why: z.string().optional(),
 });
 
+export const PhSignalSchema = z.object({
+  slug: z.string(),
+  phUrl: z.string(),
+  votesCount: z.number().int().nonnegative(),
+  featuredAt: z.string().nullable(),
+  postedAt: z.string(),
+  tagline: z.string().optional(),
+});
+
 export const FeedItemSchema = z.object({
   rank: z.number(),
   owner: z.string(),
@@ -29,6 +38,7 @@ export const FeedItemSchema = z.object({
   tags: z.array(z.string()),
   isEarlySignal: z.boolean(),
   triggers: z.array(z.string()).optional(),
+  phSignal: PhSignalSchema.optional(),
   alternatives: z.array(AlternativeItemSchema).max(2),
   compareUrl: z.string().optional(),
 });
@@ -66,6 +76,7 @@ export const RepoDetailSchema = z.object({
   license: z.string().nullable(),
   language: z.string().nullable(),
   isEarlySignal: z.boolean(),
+  phSignal: PhSignalSchema.optional(),
   alternatives: z.array(RepoAlternativeDetailSchema),
   compareUrl: z.string(),
   urls: z.object({
@@ -94,6 +105,8 @@ export const CompareResponseSchema = z.object({
   sort: z.enum(["health", "velocity"]),
   starHistoryUrl: z.string(),
 });
+
+export type PhSignal = z.infer<typeof PhSignalSchema>;
 
 export type FeedView = z.infer<typeof FeedViewSchema>;
 export type FeedPeriod = z.infer<typeof FeedPeriodSchema>;

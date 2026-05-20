@@ -5,6 +5,7 @@ import {
   type FeedResponse,
 } from "@github-trending/core/types";
 import { getAlternativesForRepos } from "@github-trending/github";
+import { getPhSignalsForRepoIds } from "@github-trending/producthunt";
 import { getDb } from "@github-trending/db";
 import {
   periodMetrics,
@@ -84,6 +85,7 @@ export async function getFeed(params: {
   const page = hasMore ? rows.slice(0, PAGE_SIZE) : rows;
 
   const repoIds = page.map(({ repo }) => repo.id);
+  const phByRepo = await getPhSignalsForRepoIds(db, repoIds);
   const alternativesByRepo = await getAlternativesForRepos(
     db,
     repoIds,
@@ -110,6 +112,7 @@ export async function getFeed(params: {
       health: m.health,
       tags: topics.slice(0, 5),
       isEarlySignal: m.isEarlySignal === 1,
+      phSignal: phByRepo.get(repo.id),
       alternatives,
       compareUrl: slugs.length > 1 ? compareUrl(slugs) : undefined,
     };

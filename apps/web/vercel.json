@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/ingest?ranking=true",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/ph-ingest",
+      "schedule": "0 9 * * *"
     }
   ]
 }

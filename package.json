@@ -11,7 +11,12 @@
     "db:migrate": "pnpm --filter @github-trending/db migrate",
     "db:push": "pnpm --filter @github-trending/db push",
     "ingest:once": "pnpm --filter @github-trending/github ingest:once",
-    "ranking:once": "pnpm --filter @github-trending/github ranking:once"
+    "ranking:once": "pnpm --filter @github-trending/github ranking:once",
+    "backfill:once": "pnpm --filter @github-trending/github backfill:once",
+    "backfill:ranking": "pnpm --filter @github-trending/github backfill:ranking",
+    "backfill:star-daily": "pnpm --filter @github-trending/github backfill:star-daily",
+    "backfill:star-daily:ranking": "pnpm --filter @github-trending/github backfill:star-daily:ranking",
+    "ph-ingest:once": "pnpm --filter @github-trending/producthunt ph-ingest:once"
   },
   "engines": {
     "node": ">=20"

@@ -6,7 +6,7 @@ import {
   periodMetrics,
   repositories,
 } from "@github-trending/db";
-import { and, asc, desc, eq, inArray, lte } from "drizzle-orm";
+import { and, asc, eq, inArray, lte } from "drizzle-orm";
 
 const MIN_HEALTH_SCORE = 2;
 

@@ -90,11 +90,17 @@ export async function runIngest(
       logger.warn("stale_ranking_runs_failed", { count: stale });
     }
 
+    const periods: FeedPeriod[] = [
+      "today",
+      "week",
+      "month",
+      "halfYear",
+      "year",
+    ];
     logger.info("ranking_phase_start", {
-      periods: ["today", "week"],
+      periods,
       views: ["velocity", "early"],
     });
-    const periods: FeedPeriod[] = ["today", "week"];
     const views = ["velocity", "early"] as const;
     for (const period of periods) {
       const inputs = await buildRankingInputs(db, period, logger);

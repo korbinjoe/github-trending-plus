@@ -1,5 +1,5 @@
 {
-  "name": "@github-trending/github",
+  "name": "@github-trending/producthunt",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -9,24 +9,21 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --max-warnings 0",
-    "ingest:once": "tsx src/cli-ingest.ts",
-    "ranking:once": "tsx src/cli-ingest.ts --ranking --ranking-only",
-    "backfill:once": "tsx src/cli-backfill.ts",
-    "backfill:ranking": "tsx src/cli-backfill.ts --ranking",
-    "backfill:star-daily": "tsx src/cli-backfill-star-daily.ts",
-    "backfill:star-daily:ranking": "tsx src/cli-backfill-star-daily.ts --ranking"
+    "test": "vitest run",
+    "ph-ingest:once": "tsx src/cli-ph-ingest.ts"
   },
   "dependencies": {
     "@github-trending/core": "workspace:*",
     "@github-trending/db": "workspace:*",
-    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.38.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "dotenv": "^17.4.2",
     "eslint": "^9.17.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.1"
+    "typescript-eslint": "^8.18.1",
+    "vitest": "^2.1.8"
   }
 }

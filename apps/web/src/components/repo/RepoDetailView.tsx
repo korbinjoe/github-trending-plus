@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatCompactNumber, formatRelativePush } from "@/lib/format";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { PhDetailPanel } from "@/components/ph/PhDetailPanel";
 import { RepoAlternativesPanel } from "./RepoAlternativesPanel";
 
 interface RepoDetailViewProps {
@@ -23,8 +24,18 @@ function licenseLabel(license: string | null, t: Awaited<ReturnType<typeof getTr
 
 export async function RepoDetailView({ detail, locale }: RepoDetailViewProps) {
   const t = await getTranslations();
+  const phT = await getTranslations("ph");
 
   const whyHot: string[] = [];
+  if (detail.phSignal) {
+    const phDate = detail.phSignal.featuredAt ?? detail.phSignal.postedAt;
+    whyHot.push(
+      phT("whyHot", {
+        votes: detail.phSignal.votesCount,
+        date: phDate.slice(0, 10),
+      }),
+    );
+  }
   if (detail.deltaStars > 0) {
     whyHot.push(t("repo.whyHot.stars", { delta: detail.deltaStars }));
   }
@@ -82,6 +93,8 @@ export async function RepoDetailView({ detail, locale }: RepoDetailViewProps) {
         )}
       </div>
       <p className="panel-note">{t("repo.verifiedNote")}</p>
+
+      {detail.phSignal && <PhDetailPanel signal={detail.phSignal} />}
 
       {whyHot.length > 0 && (
         <section className="panel panel--accent" aria-labelledby="why-hot-heading">
