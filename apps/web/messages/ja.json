@@ -2,7 +2,9 @@
   "nav": {
     "trending": "Trending",
     "subscribe": "Subscribe",
-    "about": "About"
+    "about": "About",
+    "search": "Search",
+    "favorites": "Favorites"
   },
   "hero": {
     "title": "See what's heating up on GitHub in 3 minutes a day",
@@ -109,7 +111,9 @@
   },
   "about": {
     "title": "About",
-    "disclaimer": "This site is unofficial and not affiliated with GitHub."
+    "disclaimer": "This site is unofficial and not affiliated with GitHub.",
+    "favoritesTitle": "Favorites (local storage)",
+    "favoritesBody": "Saved repositories are stored only in your current browser via localStorage. They are not tied to a GitHub account and are not synced across devices. Clearing site data or using another browser starts with an empty list."
   },
   "empty": {
     "feed": "No ranking data yet. Run ingest to populate."
@@ -133,5 +137,49 @@
     "loadMore": "もっと読み込む",
     "loading": "ランキングを読み込み中",
     "loadingMore": "読み込み中…"
+  },
+  "search": {
+    "title": "Search indexed repositories",
+    "scopeNote": "Results come from repositories ingested by GitHub Trending+, not all of GitHub.",
+    "placeholder": "Repo name, description, or keyword…",
+    "headerPlaceholder": "Search…",
+    "submit": "Search",
+    "open": "Open search",
+    "queryRequired": "Enter at least a keyword or tag to search.",
+    "queryTooShort": "Keywords must be at least 2 characters.",
+    "empty": "No repositories match your search in our index.",
+    "emptyCta": "Browse trending",
+    "error": "Search failed. Try again.",
+    "resultCount": "Showing {n} results (loaded)",
+    "tagFilter": "Tag: {tag}",
+    "searchTag": "Search all with this tag"
+  },
+  "ui": {
+    "localeLabel": "Interface language"
+  },
+  "favorites": {
+    "title": "Your favorites",
+    "subtitle": "Repos saved on this device — newest first. Metrics refresh when you open this page.",
+    "save": "Save",
+    "saved": "Saved",
+    "remove": "Remove",
+    "clearAll": "Clear all",
+    "confirmClear": "Confirm clear",
+    "cancelClear": "Cancel",
+    "count": "{n} saved · max 200",
+    "emptyTitle": "Nothing saved yet",
+    "emptyBody": "Save repos from the velocity chart or repository detail — they stay here for your next visit.",
+    "emptyCta": "Browse trending",
+    "privacyNote": "Local only: favorites are stored in this browser. Clearing site data or switching devices removes them.",
+    "savedAt": "Saved {date}",
+    "notIndexed": "Not in our DB yet",
+    "notIndexedHint": "Not indexed yet — open on GitHub for the latest info.",
+    "openGithub": "Open on GitHub ↗",
+    "limitReached": "You've reached the 200-repo limit. Remove some items first.",
+    "ariaSave": "Save {repo} to favorites",
+    "ariaRemove": "Remove {repo} from favorites",
+    "loading": "Loading…",
+    "listLabel": "Saved repositories",
+    "hydrateWarning": "Could not refresh live metrics. Showing saved snapshots."
   }
 }

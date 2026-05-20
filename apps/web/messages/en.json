@@ -6,7 +6,24 @@
     "trending": "Trending",
     "subscribe": "Subscribe",
     "favorites": "Favorites",
+    "search": "Search",
     "about": "About"
+  },
+  "search": {
+    "title": "Search indexed repositories",
+    "scopeNote": "Results come from repositories ingested by GitHub Trending+, not all of GitHub.",
+    "placeholder": "Repo name, description, or keyword…",
+    "headerPlaceholder": "Search…",
+    "submit": "Search",
+    "open": "Open search",
+    "queryRequired": "Enter at least a keyword or tag to search.",
+    "queryTooShort": "Keywords must be at least 2 characters.",
+    "empty": "No repositories match your search in our index.",
+    "emptyCta": "Browse trending",
+    "error": "Search failed. Try again.",
+    "resultCount": "Showing {n} results (loaded)",
+    "tagFilter": "Tag: {tag}",
+    "searchTag": "Search all with this tag"
   },
   "hero": {
     "title": "See what's heating up on GitHub in 3 minutes a day",
@@ -23,6 +40,7 @@
     "halfYear": "6 months",
     "year": "Year",
     "topicAll": "All topics",
+    "topicsGroup": "Topic filters from indexed repositories",
     "hideShells": "Hide empty shells"
   },
   "legend": {

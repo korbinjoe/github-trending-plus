@@ -4,6 +4,7 @@ import { localeCatalog } from "@/i18n/locales";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
+import { HeaderSearch } from "@/components/search/HeaderSearch";
 import { LogoMark } from "./LogoMark";
 
 function navLinkClass(pathname: string, href: string): string {
@@ -29,7 +30,8 @@ export function Header() {
         </span>
         GitHub Trending+
       </Link>
-      <div className="header-end">
+      <div className="site-header__end">
+        <HeaderSearch />
         <nav className="site-nav" aria-label="Main">
           <Link href="/" className={navLinkClass(pathname, "/")}>
             {t("trending")}

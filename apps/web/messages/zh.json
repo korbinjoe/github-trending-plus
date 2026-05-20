@@ -6,7 +6,24 @@
     "trending": "趋势",
     "subscribe": "订阅",
     "favorites": "收藏",
+    "search": "搜索",
     "about": "关于"
+  },
+  "search": {
+    "title": "搜索已收录仓库",
+    "scopeNote": "结果来自 GitHub Trending+ 已 ingest 的仓库，并非全 GitHub。",
+    "placeholder": "仓库名、描述或关键词…",
+    "headerPlaceholder": "搜索…",
+    "submit": "搜索",
+    "open": "打开搜索",
+    "queryRequired": "请输入关键词或标签后再搜索。",
+    "queryTooShort": "关键词至少需要 2 个字符。",
+    "empty": "在收录库中未找到匹配的仓库。",
+    "emptyCta": "浏览趋势榜",
+    "error": "搜索失败，请重试。",
+    "resultCount": "已加载 {n} 条结果",
+    "tagFilter": "标签：{tag}",
+    "searchTag": "在收录库中搜索此标签"
   },
   "hero": {
     "title": "每天 3 分钟看懂 GitHub 上正在升温的项目",
@@ -23,6 +40,7 @@
     "halfYear": "半年",
     "year": "一年",
     "topicAll": "全部主题",
+    "topicsGroup": "已收录仓库的主题标签",
     "hideShells": "隐藏空壳仓"
   },
   "legend": {

@@ -11,7 +11,7 @@ import {
   rankingRuns,
   repositories,
 } from "@github-trending/db";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { compareUrl } from "./site";
 
 const PAGE_SIZE = 24;
@@ -58,6 +58,16 @@ export async function getFeed(params: {
     conditions.push(eq(periodMetrics.language, params.lang));
   }
 
+  if (params.topic) {
+    const topicLower = params.topic.toLowerCase();
+    conditions.push(
+      sql`EXISTS (
+        SELECT 1 FROM jsonb_array_elements_text(${repositories.topics}) AS elem
+        WHERE lower(elem::text) = ${topicLower}
+      )`,
+    );
+  }
+
   const rows = await db
     .select({
       metric: periodMetrics,
@@ -73,15 +83,7 @@ export async function getFeed(params: {
   const hasMore = rows.length > PAGE_SIZE;
   const page = hasMore ? rows.slice(0, PAGE_SIZE) : rows;
 
-  const topicFilter = params.topic?.toLowerCase();
-  const filtered = topicFilter
-    ? page.filter(({ repo }) => {
-        const topics = (repo.topics as string[]) ?? [];
-        return topics.some((t) => t.toLowerCase() === topicFilter);
-      })
-    : page;
-
-  const repoIds = filtered.map(({ repo }) => repo.id);
+  const repoIds = page.map(({ repo }) => repo.id);
   const alternativesByRepo = await getAlternativesForRepos(
     db,
     repoIds,
@@ -89,7 +91,7 @@ export async function getFeed(params: {
     2,
   );
 
-  const items: FeedItem[] = filtered.map(({ metric: m, repo }) => {
+  const items: FeedItem[] = page.map(({ metric: m, repo }) => {
     const topics = (repo.topics as string[]) ?? [];
     const alternatives = alternativesByRepo.get(repo.id) ?? [];
     const slugs = [

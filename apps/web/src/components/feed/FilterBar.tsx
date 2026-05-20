@@ -1,11 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { TopicFilterChips } from "@/components/feed/TopicFilterChips";
 import { parseAsBoolean, parseAsString, parseAsStringEnum, useQueryState } from "nuqs";
 
 const PERIODS = ["today", "week", "month", "halfYear", "year"] as const;
 const VIEWS = ["velocity", "early"] as const;
-const TOPICS = ["", "ai-agent", "cli", "self-hosted", "devtools"] as const;
 const LANGUAGES = [
   { value: "", labelKey: "allLanguages" as const },
   { value: "Python", label: "Python" },
@@ -15,7 +15,11 @@ const LANGUAGES = [
   { value: "JavaScript", label: "JavaScript" },
 ];
 
-export function FilterBar() {
+interface FilterBarProps {
+  topicFilters: string[];
+}
+
+export function FilterBar({ topicFilters }: FilterBarProps) {
   const t = useTranslations("filter");
   const tabT = useTranslations("tab");
   const legendT = useTranslations("legend");
@@ -30,7 +34,6 @@ export function FilterBar() {
     parseAsStringEnum([...PERIODS]).withDefault("today"),
   );
   const [lang, setLang] = useQueryState("lang", parseAsString.withDefault(""));
-  const [topic, setTopic] = useQueryState("topic", parseAsString.withDefault(""));
   const [hideShells, setHideShells] = useQueryState(
     "hideShells",
     parseAsBoolean.withDefault(true),
@@ -80,18 +83,7 @@ export function FilterBar() {
           </label>
         </div>
 
-        <div className="topics" role="group" aria-label="Topics">
-          {TOPICS.map((chip) => (
-            <button
-              key={chip || "all"}
-              type="button"
-              className={`chip ${topic === chip ? "is-on" : ""}`}
-              onClick={() => setTopic(chip || null)}
-            >
-              {chip === "" ? t("topicAll") : chip}
-            </button>
-          ))}
-        </div>
+        <TopicFilterChips topicFilters={topicFilters} />
       </section>
 
       <div className="tabs" role="tablist">

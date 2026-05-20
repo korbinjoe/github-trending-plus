@@ -156,3 +156,15 @@ export type FavoritesHydrateResponse = z.infer<typeof FavoritesHydrateResponseSc
 
 export const FAVORITES_STORAGE_KEY = "gtp-favorites-v1";
 export const FAVORITES_MAX_ITEMS = 200;
+
+/** Search results reuse FeedItem shape (rank = result order, alternatives empty). */
+export const SearchResponseSchema = z.object({
+  items: z.array(FeedItemSchema),
+  nextCursor: z.string().nullable(),
+});
+
+export type SearchResponse = z.infer<typeof SearchResponseSchema>;
+
+export const SEARCH_MIN_KEYWORD_LENGTH = 2;
+export const SEARCH_DEFAULT_LIMIT = 24;
+export const SEARCH_MAX_LIMIT = 48;
