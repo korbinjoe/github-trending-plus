@@ -4,6 +4,10 @@
 
 Rank repos by **Δ stars + commit health**, filter noise (Awesome lists, inactive repos), and expose transparent rules, RSS, and self-hosting.
 
+![GitHub Trending+ homepage — velocity feed with language and period filters](./docs/images/homepage.png)
+
+*Live demo: [github-trending-plus-web.vercel.app](https://github-trending-plus-web.vercel.app)*
+
 ## Features
 
 - Velocity & Early Signal rankings with configurable period and language
