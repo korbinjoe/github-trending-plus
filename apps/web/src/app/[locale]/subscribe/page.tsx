@@ -19,10 +19,10 @@ export default async function SubscribePage({
       <div className="divide-y divide-border">
         {feeds.map((feed) => (
           <FeedSubscriptionRow
-            key={feed.path}
+            key={feed.url}
             title={feed.title}
             description={feed.description}
-            url={feed.path}
+            url={feed.url}
           />
         ))}
       </div>

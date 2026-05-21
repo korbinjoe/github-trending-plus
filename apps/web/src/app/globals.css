@@ -1189,6 +1189,14 @@ a.badge-signal--ph:hover {
   }
 }
 
+.feed-item__copy {
+  cursor: pointer;
+}
+
+.feed-item__copy:hover {
+  background: var(--color-surface-hover);
+}
+
 .feed-empty,
 .feed-error {
   text-align: center;

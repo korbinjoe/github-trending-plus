@@ -1,5 +1,12 @@
 export function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return raw.replace(/\/$/, "");
+}
+
+/** Absolute URL for an app path (e.g. `/feeds/all.xml`). */
+export function absoluteUrl(path: string): string {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${getSiteUrl()}${normalized}`;
 }
 
 export function repoUrl(owner: string, name: string): string {

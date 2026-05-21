@@ -1,7 +1,9 @@
+import { absoluteUrl } from "./site";
+
 export interface FeedEntry {
   title: string;
   description: string;
-  path: string;
+  url: string;
 }
 
 export function getFeedDirectory(): FeedEntry[] {
@@ -12,17 +14,17 @@ export function getFeedDirectory(): FeedEntry[] {
     {
       title: "All languages",
       description: "Top velocity repos across all languages",
-      path: "/feeds/all.xml",
+      url: absoluteUrl("/feeds/all.xml"),
     },
     ...langs.map((lang) => ({
       title: `${lang} feed`,
       description: `Velocity-ranked ${lang} repositories`,
-      path: `/feeds/lang/${lang}.xml`,
+      url: absoluteUrl(`/feeds/lang/${lang}.xml`),
     })),
     ...topics.map((topic) => ({
       title: `Topic: ${topic}`,
       description: `Repositories tagged with ${topic}`,
-      path: `/feeds/topic/${topic}.xml`,
+      url: absoluteUrl(`/feeds/topic/${topic}.xml`),
     })),
   ];
 }
