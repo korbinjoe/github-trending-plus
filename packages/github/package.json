@@ -21,7 +21,7 @@
     "@github-trending/core": "workspace:*",
     "@github-trending/db": "workspace:*",
     "dotenv": "^17.4.2",
-    "drizzle-orm": "^0.38.3"
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
