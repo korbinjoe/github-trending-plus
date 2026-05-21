@@ -20,7 +20,7 @@
     "drizzle-orm": "^0.38.3",
     "github-markdown-css": "^5.9.0",
     "next": "^15.1.3",
-    "next-intl": "^3.26.3",
+    "next-intl": "^4.12.0",
     "nuqs": "^2.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
