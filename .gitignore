@@ -8,3 +8,7 @@ dist/
 .DS_Store
 coverage/
 drizzle/
+
+# Internal planning (kept locally, not in public repo history)
+openspec/
+research/
