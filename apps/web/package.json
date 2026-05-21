@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint src --max-warnings 0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "i18n:merge": "node scripts/merge-locale-messages.mjs"
   },
   "dependencies": {
     "@github-trending/core": "workspace:*",

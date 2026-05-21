@@ -40,13 +40,18 @@ export function RankCardServer({ item, labels }: RankCardServerProps) {
     (item.triggers && item.triggers.length > 0) ||
     item.tags.length > 0;
 
+  const repoHref = `/repo/${item.owner}/${item.name}`;
+  const repoLabel = `${item.owner}/${item.name}`;
+
   return (
     <li className={`rank-item${hasAltStrip ? " rank-item--alt" : ""}`}>
-      <Link
-        href={`/repo/${item.owner}/${item.name}`}
-        prefetch
-        className="rank-card"
-      >
+      <div className="rank-card">
+        <Link
+          href={repoHref}
+          prefetch
+          className="rank-card__cover"
+          aria-label={repoLabel}
+        />
         <div className="rank-card__layout">
           <div className="rank-card__content">
             <div className="rank-card__top">
@@ -103,7 +108,7 @@ export function RankCardServer({ item, labels }: RankCardServerProps) {
             </div>
           </div>
         </div>
-      </Link>
+      </div>
       {hasAltStrip && (
         <AlternativesStripServer
           alternatives={item.alternatives}

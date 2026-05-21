@@ -676,6 +676,7 @@ html {
 
 .rank-card {
   --rank-col: 2rem;
+  position: relative;
   display: block;
   padding: 1rem 1.125rem;
   text-decoration: none;
@@ -686,14 +687,33 @@ html {
   padding-bottom: 0.75rem;
 }
 
-.rank-card:focus-visible {
+.rank-card__cover {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.rank-card__cover:focus-visible {
   outline: none;
 }
 
+.rank-card:has(.rank-card__cover:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
 .rank-card__layout {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 0.4375rem;
+  pointer-events: none;
+}
+
+.rank-card__layout :is(a, button, input, select, textarea, label) {
+  pointer-events: auto;
 }
 
 .rank-card__content {

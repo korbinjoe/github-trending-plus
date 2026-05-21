@@ -1,3 +1,4 @@
+import { DocumentLang } from "@/components/i18n/DocumentLang";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { routing } from "@/i18n/routing";
@@ -32,11 +33,11 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const messages = await getMessages();
   const dir = locale === "ar" ? "rtl" : "ltr";
-  const localeClass =
-    locale === "zh" ? notoSansSc.variable : "";
+  const localeClass = locale === "zh" ? notoSansSc.variable : "";
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <DocumentLang />
       <NuqsAdapter>
         <div dir={dir} className={`wrap${localeClass ? ` ${localeClass}` : ""}`}>
           <Header />

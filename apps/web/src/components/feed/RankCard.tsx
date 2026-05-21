@@ -73,15 +73,19 @@ export function RankCard({ item, highlightQuery }: RankCardProps) {
     (item.triggers && item.triggers.length > 0) ||
     item.tags.length > 0;
 
+  const repoLabel = `${item.owner}/${item.name}`;
+
   return (
     <li className={`rank-item${hasAltStrip ? " rank-item--alt" : ""}`}>
-      <Link
-        href={repoHref}
-        prefetch
-        className="rank-card"
-        onMouseEnter={prefetchRepo}
-        onFocus={prefetchRepo}
-      >
+      <div className="rank-card">
+        <Link
+          href={repoHref}
+          prefetch
+          className="rank-card__cover"
+          aria-label={repoLabel}
+          onMouseEnter={prefetchRepo}
+          onFocus={prefetchRepo}
+        />
         <div className="rank-card__layout">
           <div className="rank-card__content">
             <div className="rank-card__top">
@@ -183,24 +187,9 @@ export function RankCard({ item, highlightQuery }: RankCardProps) {
             <div className="rank-card__bottom">
               {hasChips && (
                 <div className="rank-card__chips">
-                  {item.phSignal && (
-                    <PhBadge
-                      signal={item.phSignal}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                    />
-                  )}
+                  {item.phSignal && <PhBadge signal={item.phSignal} />}
                   {item.phSignal?.githubUrl && (
-                    <PhGithubLinkedBadge
-                      signal={item.phSignal}
-                      indexed
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                    />
+                    <PhGithubLinkedBadge signal={item.phSignal} indexed />
                   )}
                   {item.triggers?.map((trigger) => (
                     <span key={trigger} className={signalBadgeClass(trigger)}>
@@ -224,7 +213,7 @@ export function RankCard({ item, highlightQuery }: RankCardProps) {
             </div>
           </div>
         </div>
-      </Link>
+      </div>
       {hasAltStrip && (
         <AlternativesStrip
           alternatives={item.alternatives}

@@ -7,7 +7,6 @@ export const config = {
   matcher: [
     "/",
     "/(zh|es|ja|ko|fr|de|pt|ru|ar|hi)/:path*",
-    // Default locale (en) uses no prefix — must match /repo, /compare, etc.
     "/((?!api|_next|_vercel|feeds|icon$|apple-icon$|favicon\\.ico$|.*\\..*).*)",
   ],
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useFeedLoading } from "@/components/feed/FeedLoadingContext";
+import { defaultFeedPeriod } from "@/lib/feed-params";
 import { useTranslations } from "next-intl";
 import { TopicFilterChips } from "@/components/feed/TopicFilterChips";
 import {
@@ -121,7 +122,14 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
             aria-selected={view === v}
             className={view === v ? "is-active" : ""}
             disabled={feedLoading}
-            onClick={() => setView(v)}
+            onClick={() => {
+              if (v === "ph" && view !== "ph") {
+                void setView("ph");
+                void setPeriod(defaultFeedPeriod("ph"));
+                return;
+              }
+              void setView(v);
+            }}
           >
             {tabLabel(v)}
           </button>

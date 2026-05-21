@@ -16,6 +16,7 @@ export const locales = [
 
 export type Locale = (typeof locales)[number];
 
+/** Official next-intl setup: default locale (en) has no URL prefix; others use /zh, /ja, … */
 export const routing = defineRouting({
   locales: [...locales],
   defaultLocale: "en",

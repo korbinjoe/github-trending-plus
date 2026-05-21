@@ -1,3 +1,4 @@
+import { PhPeriodDefault } from "@/components/feed/PhPeriodDefault";
 import { FeedListSkeleton } from "@/components/feed/FeedListSkeleton";
 import { FeedLoadingProvider } from "@/components/feed/FeedLoadingContext";
 import { FilterBar } from "@/components/feed/FilterBar";
@@ -35,6 +36,7 @@ export default async function HomePage({
 
   return (
     <FeedLoadingProvider>
+      <PhPeriodDefault />
       <Hero updatedAt={updatedAt} />
       <FilterBar topicFilters={topicFilters} />
       <Suspense

@@ -51,9 +51,11 @@ export function Header() {
           className="lang-select"
           aria-label={uiT("localeLabel")}
           value={locale}
-          onChange={(e) =>
-            router.replace(pathname, { locale: e.target.value as Locale })
-          }
+          onChange={(e) => {
+            const next = e.target.value as Locale;
+            if (next === locale) return;
+            router.replace(pathname, { locale: next });
+          }}
         >
           {localeCatalog.map((loc) => (
             <option key={loc.code} value={loc.code}>
