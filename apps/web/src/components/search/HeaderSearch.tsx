@@ -23,6 +23,7 @@ export function HeaderSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const [expanded, setExpanded] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [shortcutLabel, setShortcutLabel] = useState("Ctrl+K");
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export function HeaderSearch() {
       }
       event.preventDefault();
       setExpanded(true);
+      setFocused(true);
       inputRef.current?.focus();
       inputRef.current?.select();
     }
@@ -69,8 +71,11 @@ export function HeaderSearch() {
     setExpanded(false);
   }
 
+  const searchClass =
+    focused || expanded ? "header-search is-expanded" : "header-search";
+
   return (
-    <div className="header-search">
+    <div className={searchClass}>
       <button
         type="button"
         className="header-search__toggle"
@@ -102,6 +107,8 @@ export function HeaderSearch() {
             placeholder={t("headerPlaceholder")}
             value={value}
             onChange={(e) => setValue(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             autoComplete="off"
             enterKeyHint="search"
             aria-keyshortcuts={

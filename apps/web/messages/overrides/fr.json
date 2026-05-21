@@ -7,7 +7,8 @@
     "subscribe": "S'abonner",
     "favorites": "Favoris",
     "search": "Rechercher",
-    "about": "À propos"
+    "about": "À propos",
+    "github": "GitHub"
   },
   "search": {
     "title": "Rechercher des dépôts indexés",

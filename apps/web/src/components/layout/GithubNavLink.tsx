@@ -1,7 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { projectGithubUrl } from "@/lib/site";
+
+/** Brand name — intentionally not i18n (proper noun). */
+const GITHUB_LABEL = "GitHub";
 
 function GithubIcon() {
   return (
@@ -17,21 +19,17 @@ function GithubIcon() {
 }
 
 export function GithubNavLink() {
-  const t = useTranslations("nav");
-
   return (
     <a
       href={projectGithubUrl()}
-      className="site-nav-github"
+      className="site-nav-github toolbar-control"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={t("github")}
+      aria-label={GITHUB_LABEL}
+      title={GITHUB_LABEL}
     >
       <GithubIcon />
-      <span className="site-nav-github__label">{t("github")}</span>
-      <span className="site-nav-github__hint" aria-hidden="true">
-        ↗
-      </span>
+      <span className="site-nav-github__label">{GITHUB_LABEL}</span>
     </a>
   );
 }
