@@ -1,0 +1,13 @@
+title = "github-trending-plus gitleaks config"
+
+[allowlist]
+description = "Known false positives (placeholders, localStorage keys)"
+paths = [
+  '''docs/DEPLOYMENT\.md''',
+  '''docs/SELF_HOSTING\.md''',
+]
+regexes = [
+  '''gtp-favorites-v1''',
+  '''YOUR_CRON_SECRET''',
+  '''ghp_your_token_here''',
+]

@@ -6,6 +6,7 @@ export function Footer() {
   const t = useTranslations("footer");
   return (
     <footer className="site-footer">
+      <p className="text-xs opacity-80">{t("unofficial")}</p>
       <p>{t("data")}</p>
       <p>
         {t.rich("ph", {

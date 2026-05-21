@@ -1,376 +1,376 @@
-# 线上部署指南
+# Production deployment guide
 
-本文档说明如何将 **GitHub Trending+** 部署到生产环境。推荐方案为 **Vercel（前端 + Cron）+ Neon/Supabase（Postgres）**，可在免费额度内运行 MVP。
+How to deploy **GitHub Trending+** to production. Recommended stack: **Vercel (app + Cron) + Neon/Supabase (Postgres)** — viable on free tiers for MVP.
 
-## 架构概览
+## Architecture overview
 
 ```
-┌─────────────┐     Cron (定时)      ┌──────────────────────────┐
-│   Vercel    │ ──────────────────► │ POST /api/cron/ingest     │
-│  Next.js 15 │                     │  → packages/github 摄取   │
-│  ISR + API  │ ◄────────────────── │  → Postgres 写入榜单      │
-└──────┬──────┘                     └────────────┬─────────────┘
-       │                                         │
-       │  DATABASE_URL                           │
-       └────────────────────────────────────────►│ Neon / Supabase │
-                                                 └─────────────────┘
-       GITHUB_TOKEN ──► GitHub GraphQL API（仅服务端）
+┌─────────────┐     Cron (scheduled)   ┌──────────────────────────┐
+│   Vercel    │ ─────────────────────► │ POST /api/cron/ingest     │
+│  Next.js 15 │                        │  → packages/github ingest │
+│  ISR + API  │ ◄───────────────────── │  → Postgres rankings      │
+└──────┬──────┘                        └────────────┬─────────────┘
+       │                                            │
+       │  DATABASE_URL                              │
+       └───────────────────────────────────────────►│ Neon / Supabase │
+                                                    └─────────────────┘
+       GITHUB_TOKEN ──► GitHub GraphQL API (server-side only)
 ```
 
-| 组件 | 生产方案 | 说明 |
-|------|----------|------|
-| 应用托管 | [Vercel](https://vercel.com) Hobby | Next.js 15 App Router、ISR、Cron Jobs |
-| 数据库 | [Neon](https://neon.tech) 或 [Supabase](https://supabase.com) 免费层 | Postgres 16+ |
-| 域名 | `*.vercel.app` 或自有域名 CNAME | 需与 `NEXT_PUBLIC_SITE_URL` 一致 |
-| 密钥 | Vercel Environment Variables | 不入库、不暴露到浏览器 |
+| Component | Production choice | Notes |
+|-----------|-------------------|-------|
+| App hosting | [Vercel](https://vercel.com) Hobby | Next.js 15 App Router, ISR, Cron Jobs |
+| Database | [Neon](https://neon.tech) or [Supabase](https://supabase.com) free tier | Postgres 16+ |
+| Domain | `*.vercel.app` or custom CNAME | Must match `NEXT_PUBLIC_SITE_URL` |
+| Secrets | Vercel Environment Variables | Never commit; never expose to the browser |
 
 ---
 
-## 前置条件
+## Prerequisites
 
-- 拥有 GitHub 仓库的 Admin 权限（用于连接 Vercel）
-- Node.js **20+**、pnpm **9+**（本地执行迁移与首次摄取时）
-- GitHub **Personal Access Token (PAT)**，至少包含 `public_repo`（或 Fine-grained 等价读权限）
-- 已开通 Neon 或 Supabase 项目
+- GitHub repo **Admin** access (to connect Vercel)
+- Node.js **20+**, pnpm **9+** (for local migrations and first ingest)
+- GitHub **Personal Access Token (PAT)** with at least `public_repo` (or fine-grained read equivalent)
+- Neon or Supabase project created
 
 ---
 
-## 1. 准备 Postgres
+## 1. Prepare Postgres
 
-### 1.1 创建数据库
+### 1.1 Create the database
 
-**Neon（推荐）**
+**Neon (recommended)**
 
-1. 新建 Project → 选择区域（建议离用户近的区域，如 `aws-ap-southeast-1`）
-2. 复制 **Connection string**（勾选 *Pooled connection* 用于 Serverless）
-3. 格式示例：`postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require`
+1. Create a Project → pick a region close to users (e.g. `aws-ap-southeast-1`)
+2. Copy the **connection string** (enable *Pooled connection* for serverless)
+3. Example: `postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require`
 
 **Supabase**
 
-1. Project Settings → Database → Connection string（URI）
-2. 生产环境建议使用 **Transaction pooler** 连接串（端口 6543）
+1. Project Settings → Database → Connection string (URI)
+2. Prefer the **transaction pooler** string in production (port 6543)
 
-### 1.2 初始化表结构
+### 1.2 Initialize schema
 
-在**本地**（能访问公网数据库即可）执行：
+Run **locally** (any machine that can reach the DB):
 
 ```bash
-# 克隆仓库后
+# After cloning the repo
 cp .env.example .env
-# 编辑 .env，将 DATABASE_URL 设为生产库连接串
+# Set DATABASE_URL to your production connection string
 
 pnpm install
 pnpm db:push
 ```
 
-`pnpm db:push` 使用 Drizzle 将 `packages/db` 中的 schema 同步到 Postgres，无需单独 migration 文件。
+`pnpm db:push` syncs the Drizzle schema from `packages/db` to Postgres (no separate migration files).
 
-> **注意**：`db:push` 会直接修改生产库结构，首次部署前执行；后续 schema 变更请在维护窗口操作并备份。
+> **Note:** `db:push` mutates the target database. Run before first production deploy; for later schema changes, use a maintenance window and backup first.
 
-### 1.3 模糊搜索（pg_trgm）
+### 1.3 Fuzzy search (`pg_trgm`)
 
-关键词模糊搜索依赖 Postgres 扩展 `pg_trgm` 与 GIN 索引。在 `db:push` 之后执行：
+Keyword fuzzy search needs the Postgres `pg_trgm` extension and GIN indexes. After `db:push`:
 
 ```bash
 pnpm db:trgm
 ```
 
-该命令运行 `packages/db/scripts/pg_trgm_search.sql`（`CREATE EXTENSION` + trigram 索引）。
+This runs `packages/db/scripts/pg_trgm_search.sql` (`CREATE EXTENSION` + trigram indexes).
 
-**生产注意**：
+**Production notes:**
 
-- Neon / Supabase 通常已预装 `pg_trgm`；若 `CREATE EXTENSION` 失败，请在控制台启用扩展或由 DBA 预装后再跑 `pnpm db:trgm`。
-- 需要数据库用户具备 `CREATE EXTENSION` 权限（Neon 主角色一般可以）。
-- 可选环境变量 `SEARCH_FUZZY_THRESHOLD`（默认 `0.25`）调节相似度阈值，见 `.env.example`。
+- Neon / Supabase usually ship `pg_trgm`; if `CREATE EXTENSION` fails, enable it in the console or ask your DBA, then rerun `pnpm db:trgm`.
+- The DB user needs `CREATE EXTENSION` (Neon primary role typically can).
+- Optional `SEARCH_FUZZY_THRESHOLD` (default `0.25`) — see `.env.example`.
 
 ---
 
-## 2. 准备 GitHub Token
+## 2. Prepare GitHub token
 
 1. GitHub → Settings → Developer settings → Personal access tokens
-2. 创建 Classic PAT 或 Fine-grained token，确保能调用 **GraphQL API** 读取公开仓库
-3. 将 token 存入密码管理器，**仅**配置在 Vercel 环境变量 `GITHUB_TOKEN` 中
+2. Create a classic PAT or fine-grained token with **GraphQL API** read access to public repos
+3. Store the token in a password manager; configure **only** as Vercel env `GITHUB_TOKEN`
 
-速率限制：摄取作业会按语言轮询候选仓库；若触发 `403/429`，日志会出现 `rate_limit` 字段，作业会跳过当前语言并继续。
+Rate limits: ingest polls candidates per language; on `403/429`, logs include `rate_limit` and the job skips that language and continues.
 
 ---
 
-## 3. 部署到 Vercel
+## 3. Deploy to Vercel
 
-### 3.1 导入项目
+### 3.1 Import project
 
 1. [Vercel Dashboard](https://vercel.com/new) → Import Git Repository
-2. 选择本 monorepo
-3. **Root Directory** 设为 `apps/web`
-4. Framework Preset：**Next.js**（自动检测）
-5. 若未自动识别 monorepo，确认 **Include source files outside of the Root Directory** 已启用（pnpm workspace 依赖 `packages/*`）
+2. Select this monorepo
+3. **Root Directory:** `apps/web`
+4. Framework preset: **Next.js** (auto-detected)
+5. If the monorepo is not detected, enable **Include source files outside of the Root Directory** (pnpm workspace uses `packages/*`)
 
-### 3.2 构建配置
+### 3.2 Build settings
 
-| 设置项 | 推荐值 |
-|--------|--------|
-| Install Command | `cd ../.. && pnpm install` 或留空由 Vercel 自动处理 |
+| Setting | Recommended |
+|---------|-------------|
+| Install Command | `cd ../.. && pnpm install` or leave empty for Vercel auto-detect |
 | Build Command | `cd ../.. && pnpm --filter @github-trending/web build` |
-| Output Directory | 默认（Next.js） |
+| Output Directory | Default (Next.js) |
 | Node.js Version | 20.x |
 
-也可在仓库根目录保持 Root Directory 为空，Build Command 使用 `pnpm --filter @github-trending/web build`；以 Vercel 导入向导实际检测为准。
+You can also keep root directory empty and use `pnpm --filter @github-trending/web build` — follow what the Vercel import wizard detects.
 
-### 3.3 环境变量
+### 3.3 Environment variables
 
-在 Vercel → Project → Settings → Environment Variables 中配置（**Production** 与 **Preview** 按需区分）：
+Vercel → Project → Settings → Environment Variables (**Production** and **Preview** as needed):
 
-| 变量 | 必填 | 说明 |
-|------|:----:|------|
-| `DATABASE_URL` | ✅ | Postgres 连接串（Neon pooled URL 优先） |
-| `GITHUB_TOKEN` | ✅ | GitHub PAT，仅服务端 |
-| `CRON_SECRET` | ✅ | 随机长字符串（`openssl rand -hex 32`） |
-| `NEXT_PUBLIC_SITE_URL` | ✅ | 生产站点完整 URL，如 `https://your-domain.com`（无尾斜杠） |
-| `PRODUCTHUNT_API_KEY` | 可选 | PH OAuth 应用 API Key（与 `PRODUCTHUNT_API_SECRET` 成对） |
-| `PRODUCTHUNT_API_SECRET` | 可选 | PH OAuth 应用 Secret |
-| `PRODUCTHUNT_DEVELOPER_TOKEN` | 可选 | PH Developer Token（若设置则优先于 Key/Secret） |
-| `PH_INGEST_LOOKBACK_DAYS` | 可选 | 默认 `7` |
-| `PH_INGEST_TOPICS` | 可选 | 默认 `developer-tools,open-source` |
-| `PH_INGEST_PAGE_SIZE` | 可选 | 默认 `50` |
+| Variable | Required | Description |
+|----------|:--------:|-------------|
+| `DATABASE_URL` | ✅ | Postgres URL (Neon pooled URL preferred) |
+| `GITHUB_TOKEN` | ✅ | GitHub PAT, server-only |
+| `CRON_SECRET` | ✅ | Long random string (`openssl rand -hex 32`) |
+| `NEXT_PUBLIC_SITE_URL` | ✅ | Full production URL, e.g. `https://your-domain.com` (no trailing slash) |
+| `PRODUCTHUNT_API_KEY` | Optional | PH OAuth app key (pair with `PRODUCTHUNT_API_SECRET`) |
+| `PRODUCTHUNT_API_SECRET` | Optional | PH OAuth app secret |
+| `PRODUCTHUNT_DEVELOPER_TOKEN` | Optional | PH developer token (overrides key/secret if set) |
+| `PH_INGEST_LOOKBACK_DAYS` | Optional | Default `7` |
+| `PH_INGEST_TOPICS` | Optional | Default `developer-tools,open-source` |
+| `PH_INGEST_PAGE_SIZE` | Optional | Default `50` |
 
-`.env.example` 与 `apps/web/README.md` 中有相同说明。
+Same list in `.env.example` and `apps/web/README.md`.
 
-未配置任何 `PRODUCTHUNT_*` 时，`/api/cron/ph-ingest` 返回 `{ skipped: true }`，前端不展示 PH 徽章。
+If no `PRODUCTHUNT_*` vars are set, `/api/cron/ph-ingest` returns `{ skipped: true }` and the UI hides PH badges.
 
-### 3.4 Cron 定时任务
+### 3.4 Cron schedules
 
-`apps/web/vercel.json` 已定义：
+Defined in `apps/web/vercel.json`:
 
-| 调度 | 路径 | 作用 |
-|------|------|------|
-| `0 8 * * *` | `/api/cron/ingest?ranking=true` | 每日 08:00 UTC 摄取快照、生成正式榜单并刷新 RSS |
-| `0 9 * * *` | `/api/cron/ph-ingest` | 每日 09:00 UTC 摄取 Product Hunt 发布并关联仓库 |
+| Schedule | Path | Purpose |
+|----------|------|---------|
+| `0 8 * * *` | `/api/cron/ingest?ranking=true` | Daily 08:00 UTC: snapshots, ranking batch, RSS refresh |
+| `0 9 * * *` | `/api/cron/ph-ingest` | Daily 09:00 UTC: Product Hunt ingest + repo linking |
 
-> **Vercel Hobby**：每个 cron 表达式每天最多执行一次；`*/6` 等高频调度需 Pro。快照与榜单合并为上述每日任务；若需额外摄取，可手动 `curl` 或本地 `pnpm ingest:once`。
+> **Vercel Hobby:** Each cron expression runs at most once per day; high-frequency schedules like `*/6` need Pro. Extra ingests: manual `curl` or local `pnpm ingest:once`.
 
-**鉴权**：Vercel 在调用 Cron 时会自动在请求头附带 `Authorization: Bearer <CRON_SECRET>`（需已在环境变量中设置 `CRON_SECRET`）。
+**Auth:** Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` when `CRON_SECRET` is set in env.
 
-**HTTP 方法**：Vercel Cron 使用 **GET** 触发；`/api/cron/ingest` 同时支持 **GET** 与 **POST**（逻辑相同）。手动触发可使用任一种方法。
+**HTTP method:** Vercel Cron uses **GET**; `/api/cron/ingest` also accepts **POST** (same handler). Manual triggers can use either.
 
-**函数超时**：路由声明 `maxDuration = 300`（5 分钟）。Vercel **Hobby** 计划 Serverless 函数最长约 **60 秒**；若摄取超时，可：
+**Function timeout:** Routes set `maxDuration = 300` (5 min). Vercel **Hobby** serverless max is ~**60s**. If ingest times out:
 
-- 在本地对生产库执行 `pnpm ingest:once`（`DATABASE_URL` 指向生产库）；
-- 或升级 Pro 计划以支持更长执行时间；
-- 或减少 `packages/github` 中 `INGEST_LANGUAGES` / 候选上限（需改代码）。
+- Run `pnpm ingest:once` locally against production `DATABASE_URL`;
+- Upgrade to Pro for longer runs;
+- Or reduce `INGEST_LANGUAGES` / candidate limits in `packages/github` (code change).
 
-### 3.5 部署
+### 3.5 Deploy
 
-连接 `main` 分支后，推送到 `main` 即触发部署。也可在 Vercel 控制台手动 **Redeploy**。
+Connect the `main` branch; pushes to `main` deploy. You can also **Redeploy** from the Vercel dashboard.
 
-CI（`.github/workflows/ci.yml`）在 PR / push 时执行 `typecheck`、`lint`、`test`，**不**自动部署；部署由 Vercel Git 集成完成。
+CI (`.github/workflows/ci.yml`) runs `typecheck`, `lint`, `test` on PR/push — it does **not** deploy; Vercel Git integration handles deployment.
 
 ---
 
-## 4. 一次性历史 Star 日序列补全（推荐）
+## 4. One-time historical star daily backfill (recommended)
 
-若仓库池已写入 `repositories`，但 `week` / `month` / `halfYear` / `year` 榜单为空，可**一次性**从 [OSS Insight](https://ossinsight.io/docs/api/stargazers-history) 拉取各仓约 400 天日粒度 Star 历史，写入 `repo_star_daily` 表，并重算全周期排名。之后每日 ingest 仍会追加 `repository_snapshots`，并 upsert **当天**的 `repo_star_daily`（`source=github`），与历史 OSS 数据分层、互不覆盖。
+If `repositories` is populated but `week` / `month` / `halfYear` / `year` rankings are empty, run a **one-time** backfill from [OSS Insight](https://ossinsight.io/docs/api/stargazers-history) (~400 days of daily stars per repo) into `repo_star_daily`, then recompute all periods. Daily ingest still appends `repository_snapshots` and upserts **today** in `repo_star_daily` (`source=github`) without overwriting OSS history.
 
 ```bash
-# 本地，DATABASE_URL 指向目标库（无需 GITHUB_TOKEN）
-# 先确保 schema 含 repo_star_daily：pnpm db:push
+# Local; DATABASE_URL points at target DB (GITHUB_TOKEN not required)
+# Ensure schema includes repo_star_daily: pnpm db:push
 
-# 全池日序列 + 全周期排名（推荐）
+# Full daily series + all-period rankings (recommended)
 pnpm backfill:star-daily:ranking
 
-# 仅补日序列、不重算榜单
+# Daily series only, no ranking recompute
 pnpm backfill:star-daily
 
-# 试跑前 10 个仓库
+# Trial: first 10 repos
 pnpm --filter @github-trending/github backfill:star-daily --limit 10 --ranking
 
-# 强制覆盖已有日序列（慎用）
+# Force overwrite existing series (use with care)
 pnpm --filter @github-trending/github backfill:star-daily --force --ranking
 ```
 
-**说明**：
+**Notes:**
 
-- OSS Insight 公开 API 约 **600 次/小时/IP**；默认请求间隔 6.2s。全池约 2500 仓时预计 **4–5 小时**，建议在稳定网络下本地执行。
-- 已具备约 365 天日序列覆盖的仓库会跳过（`--force` 可重跑）。
-- 补全后日常 Cron ingest（`ranking=true`）会更新排名；**无需重复**全量 star-daily backfill。
-- **新仓入池**：该仓首次出现在 `repositories` 后，应对其执行一次 `backfill:star-daily`（或 `--limit` 试跑），否则长周期 baseline 可能缺失。
-- 仓库详情页支持 `?period=week|month|halfYear|year`，与首页 Feed 周期一致。
+- OSS Insight public API ~**600 requests/hour/IP**; default 6.2s spacing. ~2500 repos ≈ **4–5 hours** — run on a stable connection.
+- Repos with ~365 days of coverage are skipped (`--force` to rerun).
+- After backfill, daily cron with `ranking=true` maintains rankings; **no need** to repeat full star-daily backfill.
+- **New repos:** after first appearing in `repositories`, run `backfill:star-daily` once or long-period baselines may be missing.
+- Repo detail supports `?period=week|month|halfYear|year`, aligned with the home feed.
 
-### 4.1 旧版 4 锚点 backfill（已弃用）
+### 4.1 Legacy 4-anchor backfill (deprecated)
 
-以下命令向 `repository_snapshots` 写入 7/30/180/365 天前锚点，**请改用** `backfill:star-daily`：
+These wrote 7/30/180/365-day anchors to `repository_snapshots` — **use** `backfill:star-daily` instead:
 
 ```bash
-pnpm backfill:ranking   # deprecated：请用 backfill:star-daily:ranking
+pnpm backfill:ranking   # deprecated — use backfill:star-daily:ranking
 pnpm backfill:once      # deprecated
 ```
 
 ---
 
-## 5. 首次数据灌入
+## 5. First data ingest
 
-部署完成且环境变量、数据库就绪后，**必须**至少执行一次带排名的摄取，否则首页/API 无榜单数据。
+After deploy, env, and DB are ready, run **at least one** ingest with ranking or the home page and APIs stay empty.
 
 ```bash
 curl -X POST "https://YOUR_DOMAIN/api/cron/ingest?ranking=true" \
   -H "Authorization: Bearer YOUR_CRON_SECRET"
 ```
 
-或在本地（`DATABASE_URL` 指向生产库）：
+Or locally (`DATABASE_URL` → production):
 
 ```bash
 pnpm ingest:once --ranking
 ```
 
-成功时响应 JSON 含 `ok: true`、`reposIngested`、`rankingRunIds` 等字段。
+Success JSON includes `ok: true`, `reposIngested`, `rankingRunIds`, etc.
 
-**Product Hunt 摄取**（需配置 `PRODUCTHUNT_*`）：
+**Product Hunt ingest** (requires `PRODUCTHUNT_*`):
 
 ```bash
 curl -X POST "https://YOUR_DOMAIN/api/cron/ph-ingest" \
   -H "Authorization: Bearer YOUR_CRON_SECRET"
 
-# 或本地
+# Or locally
 pnpm ph-ingest:once
 ```
 
-验证：
+Verify:
 
-- 浏览器打开 `https://YOUR_DOMAIN`
+- Browser: `https://YOUR_DOMAIN`
 - `GET https://YOUR_DOMAIN/api/feed?view=velocity&period=today`
 - `GET https://YOUR_DOMAIN/feeds/all.xml`
 
 ---
 
-## 6. 自定义域名（可选）
+## 6. Custom domain (optional)
 
-1. Vercel → Project → Settings → Domains → 添加域名
-2. 按提示配置 DNS（CNAME 到 `cname.vercel-dns.com` 或 A 记录）
-3. 更新环境变量 `NEXT_PUBLIC_SITE_URL` 为 `https://你的域名`
-4. **Redeploy** 使 RSS / canonical 链接生效
+1. Vercel → Project → Settings → Domains → add domain
+2. Configure DNS (CNAME to `cname.vercel-dns.com` or A records as shown)
+3. Set `NEXT_PUBLIC_SITE_URL` to `https://your-domain.com`
+4. **Redeploy** so RSS and canonical URLs update
 
 ---
 
-## 7. 运维与监控
+## 7. Operations and monitoring
 
-### 6.1 日志
+### 7.1 Logs
 
-在 Vercel → Project → Logs 中筛选函数日志，摄取作业输出结构化 JSON：
+Vercel → Project → Logs — ingest emits structured JSON:
 
-| 消息 | 含义 |
-|------|------|
-| `cron_ingest_start` | 任务开始（含 `ranking` 布尔值） |
-| `cron_ingest_complete` | 成功结束（`durationMs`、`reposIngested`、`errors`） |
-| `cron_ingest_failed` | 异常失败（`reason`） |
-| `ingest_failed` + `GITHUB_TOKEN missing` | 未配置 Token |
+| Message | Meaning |
+|---------|---------|
+| `cron_ingest_start` | Job started (`ranking` flag) |
+| `cron_ingest_complete` | Success (`durationMs`, `reposIngested`, `errors`) |
+| `cron_ingest_failed` | Failure (`reason`) |
+| `ingest_failed` + `GITHUB_TOKEN missing` | Token not configured |
 
-### 6.2 失败与回滚
+### 7.2 Failures and rollback
 
-- 每日排名批次失败时，**上一批** `ranking_run` 仍会由 API / RSS 继续服务（设计见 OpenSpec `deployment-ops`）。
-- 修复后重新 `POST .../api/cron/ingest?ranking=true` 即可。
+- If a daily ranking batch fails, the **previous** `ranking_run` keeps serving via API/RSS (see OpenSpec `deployment-ops`).
+- Fix and rerun `POST .../api/cron/ingest?ranking=true`.
 
-### 6.3 公开 API 限流
+### 7.3 Public API rate limits
 
-以下路由对单 IP **60 次/分钟**（内存桶，多实例下为尽力而为）：
+These routes: **60 requests/minute/IP** (in-memory bucket; best-effort across serverless instances):
 
 - `GET /api/feed`
 - `GET /api/repos/{owner}/{name}`
 - `GET /api/compare`
 
-超限返回 **429**，body 含 `retryAfter`（秒）。
+Over limit → **429** with `retryAfter` (seconds).
 
-### 6.4 健康检查清单
+### 7.4 Health checklist
 
-| 检查项 | 预期 |
-|--------|------|
-| 首页可访问 | 200，有榜单卡片 |
-| `/api/feed` | 200，`items` 非空（灌入后） |
+| Check | Expected |
+|-------|----------|
+| Home page | 200, ranking cards visible |
+| `/api/feed` | 200, non-empty `items` (after ingest) |
 | `/feeds/all.xml` | `application/rss+xml` |
-| 无 Token 调用 Cron | 401 |
-| Vercel Cron 最近运行 | Logs 有 `cron_ingest_complete` |
+| Cron without token | 401 |
+| Recent Vercel Cron | Logs show `cron_ingest_complete` |
 
 ---
 
-## 8. 安全清单
+## 8. Security checklist
 
-- [ ] `GITHUB_TOKEN`、`CRON_SECRET`、`DATABASE_URL` 仅存在于 Vercel **Server** 环境变量
-- [ ] 不在客户端代码或 `NEXT_PUBLIC_*` 中放置密钥
-- [ ] `CRON_SECRET` 足够随机，不提交到 Git
-- [ ] 生产 `DATABASE_URL` 使用 SSL（`?sslmode=require`）
-- [ ] GitHub Token 定期轮换
-- [ ] `/about` 页保留非官方免责声明
-
----
-
-## 9. 环境对照表
-
-| 项目 | 本地开发 | 生产 |
-|------|----------|------|
-| 数据库 | `docker compose up -d`（`localhost:5432`） | Neon / Supabase |
-| 应用 | `pnpm dev` → `http://localhost:3000` | Vercel |
-| 摄取 | `pnpm ingest:once [--ranking]` | Cron 或 `curl POST /api/cron/ingest` |
-| 环境文件 | 根目录 `.env` | Vercel Environment Variables |
-
-本地快速启动见 `apps/web/README.md`。
+- [ ] `GITHUB_TOKEN`, `CRON_SECRET`, `DATABASE_URL` only in Vercel **server** env
+- [ ] No secrets in client code or `NEXT_PUBLIC_*`
+- [ ] `CRON_SECRET` is strong and not committed to git
+- [ ] Production `DATABASE_URL` uses SSL (`?sslmode=require`)
+- [ ] Rotate GitHub token periodically
+- [ ] `/about` keeps unofficial disclaimer
 
 ---
 
-## 10. 常见问题
+## 9. Environment matrix
 
-### Q: 部署后页面空白 / 无仓库列表
+| Item | Local dev | Production |
+|------|-----------|------------|
+| Database | `docker compose up -d` (`localhost:5432`) | Neon / Supabase |
+| App | `pnpm dev` → `http://localhost:3000` | Vercel |
+| Ingest | `pnpm ingest:once [--ranking]` | Cron or `curl POST /api/cron/ingest` |
+| Env file | Root `.env` | Vercel Environment Variables |
 
-尚未执行首次 `?ranking=true` 摄取，或 `DATABASE_URL` 指向错误库。按「§5 首次数据灌入」操作。
+Local quick start: `apps/web/README.md` and [SELF_HOSTING.md](./SELF_HOSTING.md).
 
-### Q: week/month/year 榜单为空
+---
 
-执行一次性历史补全（§4），或确认 `repository_snapshots` 是否含 365 天前的锚点快照。
+## 10. FAQ
 
-### Q: Cron 一直 401
+### Q: Empty page / no repos after deploy
 
-`CRON_SECRET` 未设置或与请求头 `Authorization: Bearer ...` 不一致。Vercel 自动 Cron 依赖环境变量中的同一 secret。
+First `?ranking=true` ingest not run, or wrong `DATABASE_URL`. See §5.
 
-### Q: 摄取中途失败 / 超时
+### Q: week/month/year rankings empty
 
-查看 Logs 中 `cron_ingest_failed`；常见原因：GitHub 限流、DB 连接超时、函数执行超过计划上限。可本地对生产库跑 `pnpm ingest:once --ranking` 作为补救。
+Run one-time backfill (§4) or check for 365-day anchor snapshots in `repository_snapshots`.
 
-### Q: RSS 链接指向 localhost
+### Q: Cron always 401
 
-`NEXT_PUBLIC_SITE_URL` 未设为生产域名，或未 Redeploy。
+`CRON_SECRET` missing or mismatch with `Authorization: Bearer ...`. Vercel Cron uses the same env value.
 
-### Q: 如何更新数据库 schema
+### Q: Ingest fails or times out
+
+Check `cron_ingest_failed` in logs — common: GitHub rate limit, DB timeout, function exceeds plan limit. Remedy: `pnpm ingest:once --ranking` locally against production DB.
+
+### Q: RSS links point to localhost
+
+`NEXT_PUBLIC_SITE_URL` not set to production URL, or deploy not redeployed after change.
+
+### Q: How to update database schema
 
 ```bash
-# 本地 DATABASE_URL 指向目标库
+# DATABASE_URL points at target DB
 pnpm db:push
 ```
 
-重大变更前在 Neon/Supabase 控制台备份。
+Backup in Neon/Supabase console before major changes.
 
 ---
 
-## 11. 相关文件
+## 11. Related files
 
-| 文件 | 用途 |
-|------|------|
-| `.env.example` | 环境变量模板 |
-| `apps/web/vercel.json` | Cron 调度 |
-| `apps/web/src/app/api/cron/ingest/route.ts` | 摄取 HTTP 入口 |
-| `docker-compose.yml` | 本地 Postgres |
-| `openspec/.../deployment-ops/spec.md` | 部署需求规格 |
+| File | Purpose |
+|------|---------|
+| `.env.example` | Env template |
+| `apps/web/vercel.json` | Cron schedules |
+| `apps/web/src/app/api/cron/ingest/route.ts` | Ingest HTTP entry |
+| `docker-compose.yml` | Local Postgres |
+| `docs/ARCHITECTURE.md` | Monorepo layout |
 
 ---
 
-## 附录：一键检查脚本（可选）
+## Appendix: quick check script (optional)
 
 ```bash
 DOMAIN="https://your-domain.com"
 SECRET="your-cron-secret"
 
-# 健康：feed
+# Health: feed
 curl -sf "$DOMAIN/api/feed?view=velocity&period=today" | head -c 200
 
-# 触发摄取（生产慎用频率）
+# Trigger ingest (use sparingly in production)
 curl -X POST "$DOMAIN/api/cron/ingest?ranking=true" \
   -H "Authorization: Bearer $SECRET"
 ```
 
-将 `DOMAIN`、`SECRET` 替换为实际值后再执行。
+Replace `DOMAIN` and `SECRET` before running.

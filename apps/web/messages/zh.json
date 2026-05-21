@@ -103,19 +103,20 @@
     "openExternal": "在 star-history 打开 ↗"
   },
   "footer": {
+    "unofficial": "非 GitHub 官方站点，与 GitHub, Inc. 无关联。",
     "data": "数据来自 GitHub API",
     "ph": "发布信号可能包含来自 <phLink>Product Hunt</phLink> 的数据"
   },
   "repo": {
     "back": "返回榜单",
-    "statDelta": "周期增量",
+    "statDelta": "{period} Star 增量",
     "statTotal": "总 Star",
     "statCommits": "30 天提交",
     "statPush": "最近推送",
     "verifiedNote": "一句话摘要来自 README — 纯营销文案会被标记",
     "whyHot": {
       "title": "为何此刻变热",
-      "stars": "所选周期（UTC）Star 增速 +{delta}",
+      "stars": "{period}（UTC）Star 增速 +{delta}",
       "early": "早期信号 — 总 Star < 5k 且相对增速靠前"
     },
     "trust": {
@@ -195,6 +196,8 @@
   "about": {
     "title": "关于",
     "disclaimer": "本站非 GitHub 官方，数据仅供参考。",
+    "dataSource": "榜单数据来自 GitHub GraphQL API 与本站摄取管道；可选集成包括 OSS Insight（Star 历史）与 Product Hunt（发布信号）。结果仅覆盖已收录仓库，不代表全 GitHub。",
+    "rankingTitle": "排名规则",
     "favoritesTitle": "收藏（本地存储）",
     "favoritesBody": "收藏的仓库仅保存在当前浏览器的 localStorage 中，与 GitHub 账号无关，也不会跨设备同步。清除站点数据或使用其他浏览器时，列表为空。",
     "phTitle": "Product Hunt 信号",

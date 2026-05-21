@@ -3,6 +3,8 @@ node_modules/
 dist/
 .turbo/
 .env
+.env.*
+!.env.example
 .env.local
 *.log
 .DS_Store
@@ -12,3 +14,11 @@ drizzle/
 # Internal planning (kept locally, not in public repo history)
 openspec/
 research/
+
+# IDE / agent workflow (maintainer-local)
+.cursor/
+.claude/
+.opencode/
+
+# Build artifacts
+*.tsbuildinfo

@@ -1,6 +1,6 @@
 {
-  "name": "github-trending",
-  "private": true,
+  "name": "github-trending-plus",
+  "license": "MIT",
   "scripts": {
     "dev": "pnpm --filter @github-trending/web dev",
     "build": "pnpm -r build",

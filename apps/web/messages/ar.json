@@ -46,18 +46,20 @@
     "openExternal": "Open in star-history ↗"
   },
   "footer": {
-    "data": "Data from GitHub API"
+    "unofficial": "Unofficial — not affiliated with GitHub, Inc.",
+    "data": "Data from GitHub API",
+    "ph": "Launch signals may include data from <phLink>Product Hunt</phLink>"
   },
   "repo": {
     "back": "Back to chart",
-    "statDelta": "Period gain",
+    "statDelta": "{period} gain",
     "statTotal": "Total stars",
     "statCommits": "30d commits",
     "statPush": "Last push",
     "verifiedNote": "One-line summary generated from README — flagged if marketing-only",
     "whyHot": {
       "title": "Why hot now",
-      "stars": "Star velocity +{delta} in selected period (UTC)",
+      "stars": "Star velocity +{delta} in {period} (UTC)",
       "early": "Early Signal — high relative growth under 5k stars"
     },
     "trust": {
@@ -112,6 +114,8 @@
   "about": {
     "title": "About",
     "disclaimer": "This site is unofficial and not affiliated with GitHub.",
+    "dataSource": "Rankings use data from the GitHub GraphQL API and our ingest pipeline. Optional integrations may include OSS Insight (star history) and Product Hunt (launch signals). Results reflect indexed repositories only, not all of GitHub.",
+    "rankingTitle": "Ranking rules",
     "favoritesTitle": "Favorites (local storage)",
     "favoritesBody": "Saved repositories are stored only in your current browser via localStorage. They are not tied to a GitHub account and are not synced across devices. Clearing site data or using another browser starts with an empty list."
   },

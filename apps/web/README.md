@@ -35,7 +35,7 @@ Open http://localhost:3000
 
 ## Deploy (Vercel + Neon)
 
-完整步骤见 [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md)。
+Full steps: [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md).
 
 1. Create a [Neon](https://neon.tech) or Supabase free Postgres database.
 2. Import the repo in Vercel; set root directory to repo root (monorepo).
