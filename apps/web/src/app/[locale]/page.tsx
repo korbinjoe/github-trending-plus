@@ -26,7 +26,9 @@ export default async function HomePage({
   const feedParams = parseFeedParams(sp);
   const [topicFilters, run, feedT] = await Promise.all([
     getCachedSnapshotTopicFilters().catch(() => [] as string[]),
-    getCachedLatestCompletedRun(feedParams.period, feedParams.view),
+    feedParams.view === "ph"
+      ? Promise.resolve(null)
+      : getCachedLatestCompletedRun(feedParams.period, feedParams.view),
     getTranslations("feed"),
   ]);
   const updatedAt = toIsoString(run?.completedAt);

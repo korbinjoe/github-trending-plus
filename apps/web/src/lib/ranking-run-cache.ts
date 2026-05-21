@@ -1,4 +1,4 @@
-import type { FeedPeriod, FeedView } from "@github-trending/core/types";
+import type { FeedPeriod, GithubFeedView } from "@github-trending/core/types";
 import { getDb } from "@github-trending/db";
 import { rankingRuns } from "@github-trending/db";
 import { and, desc, eq } from "drizzle-orm";
@@ -8,7 +8,7 @@ export type RankingRunRow = typeof rankingRuns.$inferSelect;
 
 async function fetchLatestCompletedRun(
   period: FeedPeriod,
-  view: FeedView,
+  view: GithubFeedView,
 ): Promise<RankingRunRow | null> {
   const db = getDb();
   const rows = await db
@@ -29,7 +29,7 @@ async function fetchLatestCompletedRun(
 /** Cached latest completed ranking run (shared across feed, search, hydrate). */
 export function getCachedLatestCompletedRun(
   period: FeedPeriod,
-  view: FeedView,
+  view: GithubFeedView,
 ): Promise<RankingRunRow | null> {
   return unstable_cache(
     () => fetchLatestCompletedRun(period, view),

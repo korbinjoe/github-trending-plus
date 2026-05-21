@@ -27,7 +27,10 @@
     "velocity": "Velocity",
     "early": "Early Signal",
     "hintVelocity": "Sorted by absolute stars gained in the selected period",
-    "hintEarly": "Top relative growth · total stars < 5k"
+    "hintEarly": "Top relative growth · total stars < 5k",
+    "ph": "Product Hunt",
+    "hintPh": "Sorted by Product Hunt upvotes in the selected launch window",
+    "phAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting."
   },
   "health": {
     "active": "Active",
@@ -56,7 +59,7 @@
     "statTotal": "Total stars",
     "statCommits": "30d commits",
     "statPush": "Last push",
-    "verifiedNote": "One-line summary generated from README — flagged if marketing-only",
+    "verifiedNote": "One-line summary from the repository description on GitHub",
     "whyHot": {
       "title": "Why hot now",
       "stars": "Star velocity +{delta} in {period} (UTC)",
@@ -96,10 +99,11 @@
     "similar": {
       "compare": "Chart only · star-history"
     },
-    "readme": {
-      "title": "README preview",
-      "viewFull": "View full README on GitHub",
-      "empty": "README preview is not available right now."
+    "about": {
+      "title": "About this project",
+      "empty": "No project summary is available yet. Open the README on GitHub for details.",
+      "showMore": "Show more",
+      "showLess": "Show less"
     }
   },
   "compare": {
@@ -140,7 +144,9 @@
   "feed": {
     "loadMore": "Mehr laden",
     "loading": "Rankings werden geladen",
-    "loadingMore": "Wird geladen…"
+    "loadingMore": "Wird geladen…",
+    "phEmpty": "No Product Hunt launches in this window yet. Run PH ingest or widen the period.",
+    "phEmptyLinked": "No GitHub-linked launches in this window. Try「All launches」or a shorter period."
   },
   "search": {
     "title": "Search indexed repositories",
@@ -185,5 +191,15 @@
     "loading": "Loading…",
     "listLabel": "Saved repositories",
     "hydrateWarning": "Could not refresh live metrics. Showing saved snapshots."
+  },
+  "phFilter": {
+    "label": "GitHub linkage",
+    "all": "All launches",
+    "linked": "GitHub linked only"
+  },
+  "launch": {
+    "notIndexed": "Not indexed on this site yet",
+    "productOnly": "No GitHub repo linked",
+    "website": "Website"
   }
 }

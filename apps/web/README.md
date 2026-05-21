@@ -58,7 +58,7 @@ curl -X POST "https://YOUR_DOMAIN/api/cron/ingest?ranking=true" \
 
 ## API routes
 
-- `GET /api/feed` — ranked feed (rate limited 60/min/IP)
+- `GET /api/feed` — ranked feed (rate limited 60/min/IP). Query: `view=velocity|early|ph`, `period`, `lang`, `topic`, `hideShells` / `includeNoise`, `phGithub=all|linked` (PH view only), `cursor`
 - `GET /api/repos/{owner}/{name}` — repository detail
 - `GET /api/compare?repos=` — comparison matrix
 - `POST /api/cron/ingest` — secured ingest (Bearer `CRON_SECRET`)

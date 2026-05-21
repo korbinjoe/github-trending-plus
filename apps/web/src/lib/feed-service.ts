@@ -1,6 +1,6 @@
 import {
   FeedPeriodSchema,
-  FeedViewSchema,
+  GithubFeedViewSchema,
   type FeedItem,
   type FeedResponse,
 } from "@github-trending/core/types";
@@ -23,7 +23,7 @@ export async function getFeed(params: {
   cursor?: string;
   includeNoise?: boolean;
 }): Promise<FeedResponse> {
-  const view = FeedViewSchema.parse(params.view);
+  const view = GithubFeedViewSchema.parse(params.view);
   const period = FeedPeriodSchema.parse(params.period);
   const db = getDb();
 

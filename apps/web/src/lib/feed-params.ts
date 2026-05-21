@@ -1,8 +1,10 @@
 import {
   FeedPeriodSchema,
   FeedViewSchema,
+  PhGithubFilterSchema,
   type FeedPeriod,
   type FeedView,
+  type PhGithubFilter,
 } from "@github-trending/core/types";
 
 export type FeedSearchParams = Record<
@@ -17,6 +19,7 @@ export interface ParsedFeedParams {
   topic?: string;
   cursor?: string;
   includeNoise: boolean;
+  phGithub: PhGithubFilter;
 }
 
 const DEFAULT_FEED_PERIOD: FeedPeriod = "today";
@@ -36,6 +39,8 @@ export function parseFeedParams(
   const view = FeedViewSchema.parse(viewRaw);
   const period = FeedPeriodSchema.parse(periodRaw);
   const hideShells = hideShellsRaw !== "false";
+  const phGithubRaw = pickString(searchParams.phGithub) ?? "all";
+  const phGithub = PhGithubFilterSchema.parse(phGithubRaw);
 
   return {
     view,
@@ -44,6 +49,7 @@ export function parseFeedParams(
     topic: pickString(searchParams.topic) || undefined,
     cursor: pickString(searchParams.cursor) || undefined,
     includeNoise: !hideShells,
+    phGithub,
   };
 }
 

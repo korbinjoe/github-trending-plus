@@ -7,12 +7,14 @@ import {
   feedHideShellsParser,
   feedLangParser,
   feedPeriodParser,
+  feedPhGithubParser,
   feedViewParser,
 } from "@/lib/feed-query-nuqs";
 import { useQueryState } from "nuqs";
 
 const PERIODS = ["today", "week", "month", "halfYear", "year"] as const;
-const VIEWS = ["velocity", "early"] as const;
+const VIEWS = ["velocity", "early", "ph"] as const;
+const PH_GITHUB_FILTERS = ["all", "linked"] as const;
 const LANGUAGES = [
   { value: "", labelKey: "allLanguages" as const },
   { value: "Python", label: "Python" },
@@ -31,6 +33,7 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
   const tabT = useTranslations("tab");
   const legendT = useTranslations("legend");
   const badgeT = useTranslations("badge");
+  const phFilterT = useTranslations("phFilter");
   const { isLoading: feedLoading } = useFeedLoading();
 
   const [view, setView] = useQueryState("view", feedViewParser);
@@ -40,6 +43,22 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
     "hideShells",
     feedHideShellsParser,
   );
+  const [phGithub, setPhGithub] = useQueryState("phGithub", feedPhGithubParser);
+
+  const isPhView = view === "ph";
+
+  const tabLabel = (v: (typeof VIEWS)[number]): string => {
+    if (v === "velocity") return tabT("velocity");
+    if (v === "early") return tabT("early");
+    return tabT("ph");
+  };
+
+  const tabHint =
+    view === "velocity"
+      ? tabT("hintVelocity")
+      : view === "early"
+        ? tabT("hintEarly")
+        : tabT("hintPh");
 
   return (
     <>
@@ -85,6 +104,25 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
           </label>
         </div>
 
+        {isPhView && (
+          <div
+            className="seg seg--ph-github"
+            role="group"
+            aria-label={phFilterT("label")}
+          >
+            {PH_GITHUB_FILTERS.map((f) => (
+              <button
+                key={f}
+                type="button"
+                className={phGithub === f ? "is-active" : ""}
+                onClick={() => setPhGithub(f)}
+              >
+                {f === "all" ? phFilterT("all") : phFilterT("linked")}
+              </button>
+            ))}
+          </div>
+        )}
+
         <TopicFilterChips topicFilters={topicFilters} />
       </section>
 
@@ -103,36 +141,40 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
             disabled={feedLoading}
             onClick={() => setView(v)}
           >
-            {v === "velocity" ? tabT("velocity") : tabT("early")}
+            {tabLabel(v)}
           </button>
         ))}
       </div>
 
-      <p className="tab-hint">
-        {view === "velocity" ? tabT("hintVelocity") : tabT("hintEarly")}
-      </p>
+      <p className="tab-hint">{tabHint}</p>
 
-      <div className="signal-legend" aria-label={legendT("title")}>
-        <span>
-          <strong>{legendT("title")}</strong>
-        </span>
-        <span className="signal-legend__item">
-          <span className="badge-signal badge-signal--trigger">release</span>
-          <span>{legendT("trigger")}</span>
-        </span>
-        <span className="signal-legend__item">
-          <span className="tag tag--license">MIT</span>
-          <span>{legendT("license")}</span>
-        </span>
-        <span className="signal-legend__item">
-          <span className="dot" aria-hidden="true" />
-          <span>{legendT("health")}</span>
-        </span>
-        <span className="signal-legend__item">
-          <span className="badge-signal badge-signal--shell">{badgeT("shell")}</span>
-          <span>{legendT("shell")}</span>
-        </span>
-      </div>
+      {!isPhView && (
+        <div className="signal-legend" aria-label={legendT("title")}>
+          <span>
+            <strong>{legendT("title")}</strong>
+          </span>
+          <span className="signal-legend__item">
+            <span className="badge-signal badge-signal--trigger">release</span>
+            <span>{legendT("trigger")}</span>
+          </span>
+          <span className="signal-legend__item">
+            <span className="tag tag--license">MIT</span>
+            <span>{legendT("license")}</span>
+          </span>
+          <span className="signal-legend__item">
+            <span className="dot" aria-hidden="true" />
+            <span>{legendT("health")}</span>
+          </span>
+          <span className="signal-legend__item">
+            <span className="badge-signal badge-signal--shell">{badgeT("shell")}</span>
+            <span>{legendT("shell")}</span>
+          </span>
+        </div>
+      )}
+
+      {isPhView && (
+        <p className="ph-feed-attribution">{tabT("phAttribution")}</p>
+      )}
     </>
   );
 }

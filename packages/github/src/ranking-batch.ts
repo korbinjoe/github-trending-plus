@@ -4,7 +4,7 @@ import {
   isEarlySignal,
   sortByVelocity,
 } from "@github-trending/core";
-import type { FeedPeriod, FeedView } from "@github-trending/core/types";
+import type { FeedPeriod, GithubFeedView } from "@github-trending/core/types";
 import type { Database } from "@github-trending/db";
 import { periodMetrics, rankingRuns } from "@github-trending/db";
 import { and, desc, eq, exists } from "drizzle-orm";
@@ -37,7 +37,7 @@ export async function failStaleRankingRuns(db: Database): Promise<number> {
 export async function runRankingBatch(
   db: Database,
   period: FeedPeriod,
-  view: FeedView,
+  view: GithubFeedView,
   inputs: RankingMetricInput[],
   logger?: IngestLogger,
 ): Promise<RankingBatchResult> {

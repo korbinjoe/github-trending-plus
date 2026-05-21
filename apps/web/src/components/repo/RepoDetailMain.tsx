@@ -1,6 +1,6 @@
 import type { FeedPeriod } from "@github-trending/core/types";
 import { RepoDetailView } from "@/components/repo/RepoDetailView";
-import { getCachedRepoReadmePreview } from "@/lib/cached-github-readme";
+import { getCachedRepoReadmeMarkdown } from "@/lib/cached-github-readme";
 import { getCachedRepoDetailCore } from "@/lib/cached-repo-detail";
 import { parseFeedPeriod } from "@/lib/feed-params";
 import { notFound } from "next/navigation";
@@ -26,9 +26,9 @@ export async function RepoDetailMain({
   period,
   locale,
 }: RepoDetailMainProps) {
-  const [detail, readmePreview] = await Promise.all([
+  const [detail, readmeMarkdown] = await Promise.all([
     getCachedRepoDetailCore(owner, name, period),
-    getCachedRepoReadmePreview(owner, name),
+    getCachedRepoReadmeMarkdown(owner, name),
   ]);
   if (!detail) notFound();
 
@@ -38,7 +38,7 @@ export async function RepoDetailMain({
     <RepoDetailView
       detail={detail}
       locale={locale}
-      readmePreview={readmePreview}
+      readmeMarkdown={readmeMarkdown}
       periodLabelKey={PERIOD_LABEL_KEYS[feedPeriod]}
     />
   );

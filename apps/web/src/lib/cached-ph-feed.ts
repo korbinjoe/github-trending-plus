@@ -1,12 +1,11 @@
-import type { FeedResponse } from "@github-trending/core/types";
+import type { PhFeedResponse } from "@github-trending/core/types";
 import { unstable_cache } from "next/cache";
 import type { ParsedFeedParams } from "./feed-params";
-import { getFeed } from "./feed-service";
+import { getPhFeed } from "./ph-feed-service";
 
-function feedCacheKey(params: ParsedFeedParams): string[] {
+function phFeedCacheKey(params: ParsedFeedParams): string[] {
   return [
-    "feed",
-    params.view,
+    "ph-feed",
     params.period,
     params.phGithub,
     params.lang ?? "",
@@ -16,21 +15,20 @@ function feedCacheKey(params: ParsedFeedParams): string[] {
   ];
 }
 
-/** Cached first page / API feed (no SSR accumulate). */
-export function getCachedFeed(
+export function getCachedPhFeed(
   params: ParsedFeedParams,
-): Promise<FeedResponse> {
+): Promise<PhFeedResponse> {
   return unstable_cache(
     () =>
-      getFeed({
-        view: params.view,
+      getPhFeed({
         period: params.period,
+        phGithub: params.phGithub,
         lang: params.lang,
         topic: params.topic,
         cursor: params.cursor,
         includeNoise: params.includeNoise,
       }),
-    feedCacheKey(params),
-    { revalidate: 300, tags: ["feed"] },
+    phFeedCacheKey(params),
+    { revalidate: 300, tags: ["feed", "ph-feed"] },
   )();
 }

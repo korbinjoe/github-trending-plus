@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { formatCompactNumber, formatRelativePush } from "@/lib/format";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { PhDetailPanel } from "@/components/ph/PhDetailPanel";
+import { RepoAboutSection } from "@/components/repo/RepoAboutSection";
 
 type PeriodLabelKey =
   | "filter.today"
@@ -15,7 +16,7 @@ type PeriodLabelKey =
 interface RepoDetailViewProps {
   detail: RepoDetail;
   locale: string;
-  readmePreview: string[] | null;
+  readmeMarkdown: string | null;
   periodLabelKey: PeriodLabelKey;
 }
 
@@ -33,7 +34,7 @@ function licenseLabel(license: string | null, t: Awaited<ReturnType<typeof getTr
 export async function RepoDetailView({
   detail,
   locale,
-  readmePreview,
+  readmeMarkdown,
   periodLabelKey,
 }: RepoDetailViewProps) {
   const t = await getTranslations();
@@ -72,7 +73,7 @@ export async function RepoDetailView({
         ? "repo.trust.busFair"
         : "repo.trust.busLow";
 
-  const readmeUrl = `${detail.urls.github}#readme`;
+  const description = detail.description.trim();
 
   return (
     <>
@@ -96,13 +97,15 @@ export async function RepoDetailView({
         />
       </div>
 
-      <div className="summary-row">
-        <p className="summary">{detail.description}</p>
-        {detail.description && (
-          <span className="badge-signal badge-signal--safe">{t("badge.verified")}</span>
-        )}
-      </div>
-      <p className="panel-note">{t("repo.verifiedNote")}</p>
+      {description && (
+        <>
+          <div className="summary-row">
+            <p className="summary">{description}</p>
+            <span className="badge-signal badge-signal--safe">{t("badge.verified")}</span>
+          </div>
+          <p className="panel-note">{t("repo.verifiedNote")}</p>
+        </>
+      )}
 
       {detail.phSignal && <PhDetailPanel signal={detail.phSignal} />}
 
@@ -118,6 +121,13 @@ export async function RepoDetailView({
           </ul>
         </section>
       )}
+
+      <RepoAboutSection
+        description={detail.description}
+        tags={detail.tags}
+        phTagline={detail.phSignal?.tagline}
+        readmeMarkdown={readmeMarkdown}
+      />
 
       <h2 className="panel__title panel__title--section">{t("repo.trust.title")}</h2>
       <div className="trust-grid">
@@ -225,22 +235,6 @@ export async function RepoDetailView({
           </a>
         )}
       </div>
-
-      <section className="panel">
-        <h2 className="panel__title">{t("repo.readme.title")}</h2>
-        {readmePreview && readmePreview.length > 0 ? (
-          readmePreview.map((para) => (
-            <p key={para.slice(0, 48)}>{para}</p>
-          ))
-        ) : (
-          <p>{t("repo.readme.empty")}</p>
-        )}
-        <p className="readme-panel__footer">
-          <a href={readmeUrl} target="_blank" rel="noopener noreferrer">
-            {t("repo.readme.viewFull")}
-          </a>
-        </p>
-      </section>
     </>
   );
 }

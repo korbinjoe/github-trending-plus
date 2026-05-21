@@ -232,5 +232,9 @@ export const productHuntPosts = pgTable(
     index("product_hunt_posts_repo_id_idx").on(t.repoId),
     index("product_hunt_posts_posted_at_idx").on(t.postedAt),
     index("product_hunt_posts_github_idx").on(t.githubOwner, t.githubName),
+    index("product_hunt_posts_leaderboard_idx").on(
+      t.votesCount,
+      t.postedAt,
+    ),
   ],
 );

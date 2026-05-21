@@ -270,19 +270,164 @@
   margin-bottom: 0;
 }
 
-.readme-panel__footer {
-  margin-top: 0.5rem;
-  margin-bottom: 0;
-  font-size: 0.85rem;
+.repo-about__lead {
+  font-size: 1rem;
+  color: var(--color-text);
+  line-height: 1.55;
+  margin-bottom: 0.75rem;
+  padding-left: 0.875rem;
+  border-left: 3px solid var(--color-accent);
 }
 
-.readme-panel__footer a {
+.repo-about__lead--fallback {
+  border-left-color: var(--color-border);
+  color: var(--color-muted);
+}
+
+/* GitHub README rendering (dark theme) */
+.repo-readme-wrap {
+  margin-top: 0.25rem;
+}
+
+.repo-readme__content {
+  background-color: transparent;
+  color-scheme: dark;
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.repo-readme__content.markdown-body {
+  background-color: transparent;
+  color: var(--color-text);
+}
+
+.repo-about .repo-readme__content.markdown-body p,
+.repo-about .repo-readme__content.markdown-body li {
+  color: var(--color-text);
+}
+
+.repo-readme__content.markdown-body a {
   color: var(--color-accent);
-  text-decoration: none;
 }
 
-.readme-panel__footer a:hover {
+.repo-readme__content.markdown-body a:hover {
   text-decoration: underline;
+}
+
+.repo-readme__content.markdown-body h1,
+.repo-readme__content.markdown-body h2,
+.repo-readme__content.markdown-body h3,
+.repo-readme__content.markdown-body h4 {
+  color: var(--color-text);
+  border-bottom-color: var(--color-border);
+}
+
+.repo-readme__content.markdown-body h6 {
+  color: var(--color-muted);
+}
+
+.repo-readme__content.markdown-body code,
+.repo-readme__content.markdown-body tt {
+  background-color: rgba(0, 0, 0, 0.35);
+  color: var(--color-text);
+  border-radius: 4px;
+}
+
+.repo-readme__content.markdown-body pre {
+  background-color: #0d1117;
+  border: 1px solid var(--color-border);
+}
+
+.repo-readme__content.markdown-body pre code {
+  background-color: transparent;
+}
+
+.repo-readme__content.markdown-body table th,
+.repo-readme__content.markdown-body table td {
+  border-color: var(--color-border);
+}
+
+.repo-readme__content.markdown-body table tr {
+  background-color: transparent;
+  border-top-color: var(--color-border);
+}
+
+.repo-readme__content.markdown-body table tr:nth-child(2n) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.repo-readme__content.markdown-body hr {
+  background-color: var(--color-border);
+  border: 0;
+}
+
+.repo-readme__content.markdown-body blockquote {
+  color: var(--color-muted);
+  border-left-color: var(--color-border);
+}
+
+.repo-readme__content.markdown-body img {
+  max-width: 100%;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.repo-readme__content.markdown-body .highlight pre,
+.repo-readme__content.markdown-body pre {
+  border-radius: 6px;
+}
+
+.repo-readme-wrap--collapsible:not(:has(.repo-readme__toggle[open])) .repo-readme__content {
+  max-height: min(520px, 70vh);
+  overflow: hidden;
+  position: relative;
+}
+
+.repo-readme-wrap--collapsible:not(:has(.repo-readme__toggle[open])) .repo-readme__content::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--color-surface));
+}
+
+.repo-readme__toggle {
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.repo-readme__toggle summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--color-accent);
+  list-style: none;
+  user-select: none;
+}
+
+.repo-readme__toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.repo-readme__toggle summary:hover {
+  text-decoration: underline;
+}
+
+.repo-readme__toggle[open] .repo-readme__toggle-more {
+  display: none;
+}
+
+.repo-readme__toggle:not([open]) .repo-readme__toggle-less {
+  display: none;
+}
+
+.repo-about__empty {
+  color: var(--color-muted);
+  font-size: 0.95rem;
 }
 
 .panel code {

@@ -31,3 +31,9 @@ export {
   getPhSignalForRepoId,
   relinkUnlinkedPosts,
 } from "./ph-signals";
+export {
+  getPhLeaderboardPosts,
+  type PhLeaderboardRow,
+  type PhLeaderboardQuery,
+  type PhLeaderboardPage,
+} from "./leaderboard";

@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-export const FeedViewSchema = z.enum(["velocity", "early"]);
+export const FeedViewSchema = z.enum(["velocity", "early", "ph"]);
+export const GithubFeedViewSchema = z.enum(["velocity", "early"]);
+export const PhGithubFilterSchema = z.enum(["all", "linked"]);
 export const FeedPeriodSchema = z.enum([
   "today",
   "week",
@@ -108,11 +110,51 @@ export const CompareResponseSchema = z.object({
 
 export type PhSignal = z.infer<typeof PhSignalSchema>;
 
+export const PhLaunchItemSchema = z.object({
+  rank: z.number(),
+  name: z.string(),
+  tagline: z.string().optional(),
+  githubOwner: z.string(),
+  githubName: z.string(),
+  slug: z.string(),
+  phSignal: PhSignalSchema,
+  votesCount: z.number(),
+  postedAt: z.string(),
+});
+
+export const PhProductItemSchema = z.object({
+  rank: z.number(),
+  name: z.string(),
+  tagline: z.string().optional(),
+  phSignal: PhSignalSchema,
+  votesCount: z.number(),
+  postedAt: z.string(),
+  website: z.string().optional(),
+});
+
+export const PhFeedEntrySchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("repo"), item: FeedItemSchema }),
+  z.object({ kind: z.literal("launch"), item: PhLaunchItemSchema }),
+  z.object({ kind: z.literal("product"), item: PhProductItemSchema }),
+]);
+
+export const PhFeedResponseSchema = z.object({
+  items: z.array(PhFeedEntrySchema),
+  nextCursor: z.string().nullable(),
+  updatedAt: z.string().nullable(),
+});
+
 export type FeedView = z.infer<typeof FeedViewSchema>;
+export type GithubFeedView = z.infer<typeof GithubFeedViewSchema>;
+export type PhGithubFilter = z.infer<typeof PhGithubFilterSchema>;
 export type FeedPeriod = z.infer<typeof FeedPeriodSchema>;
 export type ApiHealthStatus = z.infer<typeof HealthStatusSchema>;
 export type FeedItem = z.infer<typeof FeedItemSchema>;
 export type FeedResponse = z.infer<typeof FeedResponseSchema>;
+export type PhLaunchItem = z.infer<typeof PhLaunchItemSchema>;
+export type PhProductItem = z.infer<typeof PhProductItemSchema>;
+export type PhFeedEntry = z.infer<typeof PhFeedEntrySchema>;
+export type PhFeedResponse = z.infer<typeof PhFeedResponseSchema>;
 export type RepoAlternativeDetail = z.infer<typeof RepoAlternativeDetailSchema>;
 export type RepoDetail = z.infer<typeof RepoDetailSchema>;
 export type CompareResponse = z.infer<typeof CompareResponseSchema>;

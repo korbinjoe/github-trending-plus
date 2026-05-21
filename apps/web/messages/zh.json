@@ -77,13 +77,28 @@
     "loading": "正在加载榜单",
     "loadingMore": "加载中…",
     "switching": "正在切换榜单…",
-    "error": "榜单加载失败，请重试。"
+    "error": "榜单加载失败，请重试。",
+    "phEmpty": "该时间窗口内暂无 Product Hunt 发布。请先运行 PH ingest 或放宽周期。",
+    "phEmptyLinked": "该窗口内暂无 GitHub 关联发布。可切换「全部发布」或缩短周期。"
   },
   "tab": {
     "velocity": "增速榜",
     "early": "早期信号",
+    "ph": "Product Hunt",
     "hintVelocity": "按所选周期绝对 Star 增量排序",
-    "hintEarly": "相对增速 Top · 总 Star < 5k"
+    "hintEarly": "相对增速 Top · 总 Star < 5k",
+    "hintPh": "按所选时间窗口内 Product Hunt 票数排序",
+    "phAttribution": "发布数据来自 Product Hunt；本站不托管 PH 评论或投票。"
+  },
+  "phFilter": {
+    "label": "GitHub 关联",
+    "all": "全部发布",
+    "linked": "仅 GitHub 关联"
+  },
+  "launch": {
+    "notIndexed": "尚未收录至本站榜单",
+    "productOnly": "未关联 GitHub 仓库",
+    "website": "官网"
   },
   "health": {
     "active": "活跃",
@@ -113,7 +128,7 @@
     "statTotal": "总 Star",
     "statCommits": "30 天提交",
     "statPush": "最近推送",
-    "verifiedNote": "一句话摘要来自 README — 纯营销文案会被标记",
+    "verifiedNote": "一句话摘要来自 GitHub 仓库描述（description）",
     "whyHot": {
       "title": "为何此刻变热",
       "stars": "{period}（UTC）Star 增速 +{delta}",
@@ -153,10 +168,11 @@
     "similar": {
       "compare": "仅曲线 · star-history"
     },
-    "readme": {
-      "title": "README 预览",
-      "viewFull": "在 GitHub 查看完整 README",
-      "empty": "暂时无法加载 README 预览。"
+    "about": {
+      "title": "项目简介",
+      "empty": "暂无项目简介，可在 GitHub 阅读完整 README。",
+      "showMore": "展开更多",
+      "showLess": "收起"
     }
   },
   "compare": {

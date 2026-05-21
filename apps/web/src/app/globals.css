@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "github-markdown-css/github-markdown.css";
 @import "./repo-detail.css";
 
 @theme {
@@ -957,6 +958,22 @@ html {
 .badge-signal--safe {
   border-color: rgba(61, 214, 140, 0.3);
   color: var(--color-accent-dim);
+}
+
+.badge-signal--muted {
+  border-color: var(--color-border);
+  color: var(--color-muted);
+}
+
+.ph-feed-attribution {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.seg--ph-github {
+  margin-top: 0.5rem;
 }
 
 .badge-signal--ph {

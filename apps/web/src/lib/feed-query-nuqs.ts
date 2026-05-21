@@ -7,8 +7,16 @@ import {
 /** Shallow URL updates; feed data loads via `/api/feed` in `FeedListClient`. */
 const clientQuery = { shallow: true } as const;
 
-export const feedViewParser = parseAsStringEnum(["velocity", "early"] as const)
+export const feedViewParser = parseAsStringEnum([
+  "velocity",
+  "early",
+  "ph",
+] as const)
   .withDefault("velocity")
+  .withOptions(clientQuery);
+
+export const feedPhGithubParser = parseAsStringEnum(["all", "linked"] as const)
+  .withDefault("all")
   .withOptions(clientQuery);
 
 export const feedPeriodParser = parseAsStringEnum([
