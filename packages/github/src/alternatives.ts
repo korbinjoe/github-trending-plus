@@ -9,6 +9,7 @@ import {
 import { and, asc, eq, inArray, lte } from "drizzle-orm";
 
 const MIN_HEALTH_SCORE = 2;
+const EDGE_INSERT_CHUNK = 200;
 
 function sharedTopics(a: string[], b: string[]): boolean {
   const setB = new Set(b.map((t) => t.toLowerCase()));
@@ -37,7 +38,8 @@ export async function computeAlternativesForPeriod(
 
   const repos = await db.select().from(repositories);
   const repoMap = new Map(repos.map((r) => [r.id, r]));
-  let edgesWritten = 0;
+
+  const allEdges: (typeof alternativesEdges.$inferInsert)[] = [];
 
   for (const anchor of metrics) {
     const anchorRepo = repoMap.get(anchor.repoId);
@@ -87,23 +89,26 @@ export async function computeAlternativesForPeriod(
 
     let rank = 1;
     for (const c of top) {
-      await db
-        .insert(alternativesEdges)
-        .values({
-          anchorRepoId: anchor.repoId,
-          candidateRepoId: c.repoId,
-          period,
-          reason: c.reason,
-          score: c.score,
-          rank,
-        })
-        .onConflictDoNothing();
+      allEdges.push({
+        anchorRepoId: anchor.repoId,
+        candidateRepoId: c.repoId,
+        period,
+        reason: c.reason,
+        score: c.score,
+        rank,
+      });
       rank += 1;
-      edgesWritten += 1;
     }
   }
 
-  return edgesWritten;
+  for (let i = 0; i < allEdges.length; i += EDGE_INSERT_CHUNK) {
+    await db
+      .insert(alternativesEdges)
+      .values(allEdges.slice(i, i + EDGE_INSERT_CHUNK))
+      .onConflictDoNothing();
+  }
+
+  return allEdges.length;
 }
 
 export type AlternativeItem = {

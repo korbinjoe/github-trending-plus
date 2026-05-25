@@ -8,7 +8,7 @@ export const INGEST_LANGUAGES = [
 
 export type IngestLanguage = (typeof INGEST_LANGUAGES)[number];
 
-export const DAILY_CANDIDATE_CAP_PER_LANGUAGE = 500;
+export const DAILY_CANDIDATE_CAP_PER_LANGUAGE = 200;
 
 export const MIN_STARS_SEARCH = 50;
 

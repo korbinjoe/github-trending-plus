@@ -51,8 +51,6 @@ async function handleRanking(request: Request) {
       "today",
       "week",
       "month",
-      "halfYear",
-      "year",
     ];
     const views = ["velocity", "early"] as const;
     const rankingRunIds: string[] = [];

@@ -44,43 +44,51 @@ export async function runIngest(
     logger.info("ingest_start", { languages: INGEST_LANGUAGES });
   }
 
-  for (const language of INGEST_LANGUAGES) {
-    if (options?.rankingOnly) break;
-    try {
+  const languageResults = await Promise.allSettled(
+    INGEST_LANGUAGES.map(async (language) => {
       logger.info("ingest_language_start", { language });
-      const nodes = await searchCandidatesForLanguage(client, language, undefined, logger);
-      const total = nodes.length;
-      let saved = 0;
+      try {
+        const nodes = await searchCandidatesForLanguage(client, language, undefined, logger);
+        const total = nodes.length;
+        let saved = 0;
+        let languageErrors = 0;
 
-      for (const node of nodes) {
-        try {
-          await upsertRepositorySnapshot(db, node);
-          reposIngested += 1;
-          saved += 1;
-          logEvery(logger, "ingest_snapshot_progress", saved, total, SNAPSHOT_LOG_STEP, {
-            language,
-            errors,
-          });
-        } catch (err) {
-          errors += 1;
-          const [owner, name] = node.nameWithOwner.split("/");
-          await logIngestError(
-            db,
-            owner ?? null,
-            name ?? null,
-            err instanceof Error ? err.message : String(err),
-          );
+        for (const node of nodes) {
+          try {
+            await upsertRepositorySnapshot(db, node);
+            saved += 1;
+            logEvery(logger, "ingest_snapshot_progress", saved, total, SNAPSHOT_LOG_STEP, {
+              language,
+              errors: languageErrors,
+            });
+          } catch (err) {
+            languageErrors += 1;
+            const [owner, name] = node.nameWithOwner.split("/");
+            await logIngestError(
+              db,
+              owner ?? null,
+              name ?? null,
+              err instanceof Error ? err.message : String(err),
+            );
+          }
         }
-      }
 
-      logger.info("ingest_language_done", { language, saved, total, errors });
-    } catch (err) {
-      if (err instanceof GitHubRateLimitError) {
-        logger.error("rate_limit", { resetAt: err.resetAt, language });
-        errors += 1;
-        continue;
+        logger.info("ingest_language_done", { language, saved, total, errors: languageErrors });
+        return { saved, errors: languageErrors };
+      } catch (err) {
+        if (err instanceof GitHubRateLimitError) {
+          logger.error("rate_limit", { resetAt: err.resetAt, language });
+          return { saved: 0, errors: 1 };
+        }
+        throw err;
       }
-      throw err;
+    }),
+  );
+
+  for (const result of languageResults) {
+    if (result.status === "fulfilled") {
+      reposIngested += result.value.saved;
+      errors += result.value.errors;
     }
   }
 
