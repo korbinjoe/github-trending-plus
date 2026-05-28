@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "Indexierte Repositories durchsuchen",
-    "scopeNote": "Ergebnisse stammen aus von GitHub Trending+ erfassten Repositories, nicht aus ganz GitHub. Die Stichwortsuche toleriert Tippfehler.",
+    "scopeNote": "Ergebnisse stammen aus von Trending8 erfassten Repositories, nicht aus ganz GitHub. Die Stichwortsuche toleriert Tippfehler.",
     "placeholder": "Repo-Name, Beschreibung oder Stichwort…",
     "headerPlaceholder": "Suchen…",
     "submit": "Suchen",
@@ -109,7 +109,7 @@
     "websitePhLink": "Website (PH-Link)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",
@@ -133,7 +133,9 @@
     "github": "Auf GitHub öffnen",
     "compare": "Vergleichen",
     "openCharts": "Charts öffnen",
-    "analyze": "Auf OSS Insight analysieren"
+    "analyze": "Auf OSS Insight analysieren",
+    "shareX": "Auf X teilen",
+    "shareTop8": "Top 8 teilen"
   },
   "chartModal": {
     "close": "Schließen",

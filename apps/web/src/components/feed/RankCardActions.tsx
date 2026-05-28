@@ -5,7 +5,9 @@ import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import type { FeedItem } from "@github-trending/core/types";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { githubRepoUrl } from "@/lib/site";
+import { githubRepoUrl, repoUrl } from "@/lib/site";
+import { ShareToX } from "@/components/share/ShareToX";
+import { buildRepoCardTweet } from "@/lib/share-text";
 
 interface RankCardActionsProps {
   item: FeedItem;
@@ -43,6 +45,10 @@ export function RankCardActions({ item }: RankCardActionsProps) {
   return (
     <>
       <div className="rank-card__actions">
+        <ShareToX
+          text={buildRepoCardTweet(item.owner, item.name, item.description, item.deltaStars)}
+          url={repoUrl(item.owner, item.name)}
+        />
         <FavoriteButton
           owner={item.owner}
           name={item.name}

@@ -1,8 +1,11 @@
 import type { PhLaunchDetail } from "@github-trending/core/types";
 import { phOutboundLinks } from "@github-trending/core/ph-signal-utils";
 import { PhDetailPanel } from "@/components/ph/PhDetailPanel";
+import { ShareToX } from "@/components/share/ShareToX";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
+import { buildLaunchTweet } from "@/lib/share-text";
+import { launchUrl } from "@/lib/site";
 import { GithubSlugBlock } from "./GithubSlugBlock";
 import { IndexedRepoBridge } from "./IndexedRepoBridge";
 import { NotIndexedBanner } from "./NotIndexedBanner";
@@ -21,7 +24,15 @@ export async function PhLaunchDetailView({ detail }: PhLaunchDetailViewProps) {
         ← {t("detailBack")}
       </Link>
 
-      <h1 className="launch-detail__title">{detail.productName}</h1>
+      <div className="repo-title-row">
+        <h1 className="launch-detail__title">{detail.productName}</h1>
+        <div className="title-actions">
+          <ShareToX
+            text={buildLaunchTweet(detail.productName, detail.signal.tagline, detail.signal.votesCount)}
+            url={launchUrl(detail.signal.slug)}
+          />
+        </div>
+      </div>
 
       <PhDetailPanel signal={detail.signal} productName={detail.productName} />
 

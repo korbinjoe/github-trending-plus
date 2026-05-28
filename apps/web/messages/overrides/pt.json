@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "Buscar repositórios indexados",
-    "scopeNote": "Os resultados vêm de repositórios ingeridos pelo GitHub Trending+, não de todo o GitHub. A busca por palavras-chave tolera erros de digitação.",
+    "scopeNote": "Os resultados vêm de repositórios ingeridos pelo Trending8, não de todo o GitHub. A busca por palavras-chave tolera erros de digitação.",
     "placeholder": "Nome do repo, descrição ou palavra-chave…",
     "headerPlaceholder": "Buscar…",
     "submit": "Buscar",
@@ -108,7 +108,7 @@
     "websitePhLink": "Site (link PH)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",

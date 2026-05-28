@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "搜索已收录仓库",
-    "scopeNote": "结果来自 GitHub Trending+ 已 ingest 的仓库，并非全 GitHub。关键词搜索支持拼写容错。",
+    "scopeNote": "结果来自 Trending8 已 ingest 的仓库，并非全 GitHub。关键词搜索支持拼写容错。",
     "placeholder": "仓库名、描述或关键词…",
     "headerPlaceholder": "搜索…",
     "submit": "搜索",
@@ -109,7 +109,7 @@
     "websitePhLink": "官网（PH 短链）",
     "detailBack": "返回 Product Hunt 榜单",
     "detailAttribution": "发布数据来自 Product Hunt。本站不展示 PH 评论或投票明细。",
-    "indexedBridgeTitle": "已收录至 GitHub Trending+",
+    "indexedBridgeTitle": "已收录至 Trending8",
     "indexedBridgeBody": "该仓库已在站内榜单中。打开趋势详情页可查看 Star 增速、健康度与替代品。",
     "indexedRepoLabel": "仓库",
     "indexedLanguageLabel": "语言",
@@ -133,7 +133,9 @@
     "github": "在 GitHub 打开",
     "compare": "对比",
     "openCharts": "打开曲线",
-    "analyze": "OSS Insight 分析"
+    "analyze": "OSS Insight 分析",
+    "shareX": "分享到 X",
+    "shareTop8": "分享 Top 8"
   },
   "chartModal": {
     "close": "关闭",

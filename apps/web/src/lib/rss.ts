@@ -20,7 +20,7 @@ function escapeXml(s: string): string {
 function emptyChannelRss(siteUrl: string, description: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"><channel>
-<title>GitHub Trending+</title>
+<title>Trending8</title>
 <link>${siteUrl}</link>
 <description>${escapeXml(description)}</description>
 </channel></rss>`;
@@ -92,10 +92,10 @@ export async function buildRssFeed(options?: {
   });
 
   const channelTitle = options?.language
-    ? `GitHub Trending+ — ${options.language}`
+    ? `Trending8 — ${options.language}`
     : options?.topic
-      ? `GitHub Trending+ — ${options.topic}`
-      : "GitHub Trending+";
+      ? `Trending8 — ${options.topic}`
+      : "Trending8";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">

@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "Rechercher des dépôts indexés",
-    "scopeNote": "Les résultats proviennent des dépôts ingérés par GitHub Trending+, pas de l'ensemble de GitHub. La recherche par mots-clés tolère les fautes de frappe.",
+    "scopeNote": "Les résultats proviennent des dépôts ingérés par Trending8, pas de l'ensemble de GitHub. La recherche par mots-clés tolère les fautes de frappe.",
     "placeholder": "Nom du dépôt, description ou mot-clé…",
     "headerPlaceholder": "Rechercher…",
     "submit": "Rechercher",
@@ -108,7 +108,7 @@
     "websitePhLink": "Site web (lien PH)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",

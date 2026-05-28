@@ -20,6 +20,10 @@ export function repoUrl(owner: string, name: string): string {
   return `${getSiteUrl()}/repo/${owner}/${name}`;
 }
 
+export function launchUrl(slug: string): string {
+  return `${getSiteUrl()}/launch/${slug}`;
+}
+
 export function compareUrl(slugs: string[]): string {
   const params = new URLSearchParams({ repos: slugs.join(",") });
   return `${getSiteUrl()}/compare?${params.toString()}`;

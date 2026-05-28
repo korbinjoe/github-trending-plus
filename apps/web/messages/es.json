@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "Buscar repositorios indexados",
-    "scopeNote": "Los resultados provienen de repositorios ingeridos por GitHub Trending+, no de todo GitHub. La búsqueda por palabras clave admite tolerancia a errores tipográficos.",
+    "scopeNote": "Los resultados provienen de repositorios ingeridos por Trending8, no de todo GitHub. La búsqueda por palabras clave admite tolerancia a errores tipográficos.",
     "placeholder": "Nombre del repo, descripción o palabra clave…",
     "headerPlaceholder": "Buscar…",
     "submit": "Buscar",
@@ -109,7 +109,7 @@
     "websitePhLink": "Sitio web (enlace PH)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",
@@ -133,7 +133,9 @@
     "github": "Abrir en GitHub",
     "compare": "Comparar",
     "openCharts": "Abrir gráficos",
-    "analyze": "Analizar en OSS Insight"
+    "analyze": "Analizar en OSS Insight",
+    "shareX": "Compartir en X",
+    "shareTop8": "Compartir Top 8"
   },
   "chartModal": {
     "close": "Cerrar",

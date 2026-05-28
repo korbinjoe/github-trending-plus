@@ -10,6 +10,8 @@ import { PhProductCard } from "@/components/feed/PhProductCard";
 import { RankCard } from "@/components/feed/RankCard";
 import { useRouter } from "@/i18n/navigation";
 import { buildFeedApiSearchParams } from "@/lib/feed-api-params";
+import { buildTop8Tweet } from "@/lib/share-text";
+import { getSiteUrl } from "@/lib/site";
 import {
   launchDetailHref,
   phFeedLaunchSlugs,
@@ -70,7 +72,7 @@ export function FeedListClient({
 }: FeedListClientProps) {
   const emptyT = useTranslations("empty");
   const feedT = useTranslations("feed");
-  const { setIsLoading: setGlobalFeedLoading } = useFeedLoading();
+  const { setIsLoading: setGlobalFeedLoading, setTop8 } = useFeedLoading();
 
   const [view] = useQueryState("view", feedViewParser);
   const { period } = useEffectiveFeedPeriod();
@@ -266,6 +268,17 @@ export function FeedListClient({
       router.prefetch(launchDetailHref(slug));
     }
   }, [isPhView, phItems, router]);
+
+  useEffect(() => {
+    if (!isPhView && githubItems.length >= 8) {
+      setTop8({
+        text: buildTop8Tweet(githubItems.slice(0, 8)),
+        url: getSiteUrl(),
+      });
+    } else {
+      setTop8(null);
+    }
+  }, [isPhView, githubItems, setTop8]);
 
   const itemCount = isPhView ? phItems.length : githubItems.length;
 

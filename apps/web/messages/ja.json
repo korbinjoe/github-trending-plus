@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "インデックス済みリポジトリを検索",
-    "scopeNote": "結果は GitHub Trending+ が取り込んだリポジトリからのもので、GitHub 全体ではありません。キーワード検索は誤字に寛容です。",
+    "scopeNote": "結果は Trending8 が取り込んだリポジトリからのもので、GitHub 全体ではありません。キーワード検索は誤字に寛容です。",
     "placeholder": "リポ名、説明、キーワード…",
     "headerPlaceholder": "検索…",
     "submit": "検索",
@@ -109,7 +109,7 @@
     "websitePhLink": "ウェブサイト（PH リンク）",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",
@@ -133,7 +133,9 @@
     "github": "GitHub で開く",
     "compare": "比較",
     "openCharts": "チャートを開く",
-    "analyze": "OSS Insight で分析"
+    "analyze": "OSS Insight で分析",
+    "shareX": "X でシェア",
+    "shareTop8": "Top 8 をシェア"
   },
   "chartModal": {
     "close": "閉じる",

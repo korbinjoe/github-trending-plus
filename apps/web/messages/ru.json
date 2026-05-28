@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "Поиск по индексированным репозиториям",
-    "scopeNote": "Результаты из репозиториев, собранных GitHub Trending+, а не со всего GitHub. Поиск по ключевым словам допускает опечатки.",
+    "scopeNote": "Результаты из репозиториев, собранных Trending8, а не со всего GitHub. Поиск по ключевым словам допускает опечатки.",
     "placeholder": "Имя репо, описание или ключевое слово…",
     "headerPlaceholder": "Поиск…",
     "submit": "Искать",
@@ -109,7 +109,7 @@
     "websitePhLink": "Сайт (ссылка PH)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",
@@ -133,7 +133,9 @@
     "github": "Открыть на GitHub",
     "compare": "Сравнить",
     "openCharts": "Открыть графики",
-    "analyze": "Анализ на OSS Insight"
+    "analyze": "Анализ на OSS Insight",
+    "shareX": "Поделиться в X",
+    "shareTop8": "Поделиться Топ-8"
   },
   "chartModal": {
     "close": "Закрыть",

@@ -17,7 +17,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const detail = await getCachedPhLaunchDetail(slug);
   if (!detail) {
-    return { title: "Launch not found · GitHub Trending+" };
+    return { title: "Launch not found · Trending8" };
   }
 
   const description =
@@ -31,9 +31,10 @@ export async function generateMetadata({
       : { index: false as const, follow: true as const };
 
   return {
-    title: `${detail.productName} · GitHub Trending+`,
+    title: `${detail.productName} · Trending8`,
     description,
     robots,
+    twitter: { card: "summary_large_image" },
   };
 }
 

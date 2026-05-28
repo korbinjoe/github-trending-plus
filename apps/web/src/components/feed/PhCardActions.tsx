@@ -10,7 +10,9 @@ import {
 } from "@github-trending/core/ph-signal-utils";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { githubRepoUrl } from "@/lib/site";
+import { githubRepoUrl, launchUrl } from "@/lib/site";
+import { ShareToX } from "@/components/share/ShareToX";
+import { buildPhCardTweet } from "@/lib/share-text";
 
 interface PhCardActionsProps {
   signal: PhSignal;
@@ -79,6 +81,10 @@ export function PhCardActions({
   return (
     <>
       <div className="rank-card__actions">
+        <ShareToX
+          text={buildPhCardTweet(productName, signal.tagline, signal.votesCount)}
+          url={launchUrl(signal.slug)}
+        />
         {indexedRepo ? (
           <PhIndexedFavoriteButton
             slug={signal.slug}

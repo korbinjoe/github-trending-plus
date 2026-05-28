@@ -17,7 +17,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GitHub Trending+",
+  title: "Trending8",
   description: "Velocity-ranked open source on GitHub",
 };
 

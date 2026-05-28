@@ -3,8 +3,11 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatCompactNumber, formatRelativePush } from "@/lib/format";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { ShareToX } from "@/components/share/ShareToX";
 import { PhDetailPanel } from "@/components/ph/PhDetailPanel";
 import { RepoAboutSection } from "@/components/repo/RepoAboutSection";
+import { buildRepoTweet } from "@/lib/share-text";
+import { repoUrl } from "@/lib/site";
 
 type PeriodLabelKey =
   | "filter.today"
@@ -85,16 +88,22 @@ export async function RepoDetailView({
         <h1 className="repo-title">
           {detail.owner} / {detail.name}
         </h1>
-        <FavoriteButton
-          owner={detail.owner}
-          name={detail.name}
-          variant="labeled"
-          snapshot={{
-            description: detail.description,
-            deltaStars: detail.deltaStars,
-            health: detail.health,
-          }}
-        />
+        <div className="title-actions">
+          <ShareToX
+            text={buildRepoTweet(detail.owner, detail.name, detail.description, detail.deltaStars, periodLabelKey)}
+            url={repoUrl(detail.owner, detail.name)}
+          />
+          <FavoriteButton
+            owner={detail.owner}
+            name={detail.name}
+            variant="labeled"
+            snapshot={{
+              description: detail.description,
+              deltaStars: detail.deltaStars,
+              health: detail.health,
+            }}
+          />
+        </div>
       </div>
 
       {description && (

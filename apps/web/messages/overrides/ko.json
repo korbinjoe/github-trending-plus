@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "색인된 저장소 검색",
-    "scopeNote": "결과는 GitHub Trending+가 수집한 저장소에서 나오며 GitHub 전체가 아닙니다. 키워드 검색은 오타 허용을 지원합니다.",
+    "scopeNote": "결과는 Trending8가 수집한 저장소에서 나오며 GitHub 전체가 아닙니다. 키워드 검색은 오타 허용을 지원합니다.",
     "placeholder": "저장소 이름, 설명 또는 키워드…",
     "headerPlaceholder": "검색…",
     "submit": "검색",
@@ -108,7 +108,7 @@
     "websitePhLink": "웹사이트(PH 링크)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",

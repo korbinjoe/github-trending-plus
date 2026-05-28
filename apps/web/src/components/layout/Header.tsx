@@ -32,13 +32,13 @@ export function Header() {
 
   return (
     <header className="site-header">
-      <Link href="/" className="logo" aria-label="GitHub Trending+">
+      <Link href="/" className="logo" aria-label="Trending8">
         <span className="logo-mark">
           <LogoMark />
         </span>
         <span className="logo__text">
-          <span className="logo__prefix">GitHub </span>
-          <span className="logo__name">Trending+</span>
+          <span className="logo__prefix">Trending</span>
+          <span className="logo__name">8</span>
         </span>
       </Link>
       <div className="site-header__center">

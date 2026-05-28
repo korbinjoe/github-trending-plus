@@ -1,6 +1,7 @@
 "use client";
 
 import { useFeedLoading } from "@/components/feed/FeedLoadingContext";
+import { ShareToX } from "@/components/share/ShareToX";
 import { defaultFeedPeriod } from "@/lib/feed-params";
 import { useTranslations } from "next-intl";
 import { TopicFilterChips } from "@/components/feed/TopicFilterChips";
@@ -34,7 +35,8 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
   const legendT = useTranslations("legend");
   const badgeT = useTranslations("badge");
   const phFilterT = useTranslations("phFilter");
-  const { isLoading: feedLoading } = useFeedLoading();
+  const ctaT = useTranslations("cta");
+  const { isLoading: feedLoading, top8 } = useFeedLoading();
 
   const [view, setView] = useQueryState("view", feedViewParser);
   const { period, setPeriod } = useEffectiveFeedPeriod();
@@ -193,6 +195,14 @@ export function FilterBar({ topicFilters }: FilterBarProps) {
             <span className="badge-signal badge-signal--shell">{badgeT("shell")}</span>
             <span>{legendT("shell")}</span>
           </span>
+          {top8 && (
+            <ShareToX
+              text={top8.text}
+              url={top8.url}
+              variant="button"
+              label={ctaT("shareTop8")}
+            />
+          )}
         </div>
       )}
 

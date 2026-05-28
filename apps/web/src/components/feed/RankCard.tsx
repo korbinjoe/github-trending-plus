@@ -10,7 +10,9 @@ import { PhBadge } from "@/components/ph/PhBadge";
 import { PhGithubLinkedBadge } from "@/components/ph/PhGithubLinkedBadge";
 import { usePrefetchLaunchDetail } from "@/hooks/usePrefetchLaunchDetail";
 import { HighlightedText } from "@/components/search/HighlightedText";
-import { githubRepoUrl } from "@/lib/site";
+import { githubRepoUrl, repoUrl } from "@/lib/site";
+import { buildRepoCardTweet } from "@/lib/share-text";
+import { ShareToX } from "@/components/share/ShareToX";
 import { AlternativesStrip } from "./AlternativesStrip";
 import { HealthDot } from "./HealthDot";
 
@@ -137,6 +139,10 @@ export function RankCard({ item, highlightQuery }: RankCardProps) {
                   +{item.deltaStars.toLocaleString()}
                 </span>
                 <div className="rank-card__actions">
+                  <ShareToX
+                    text={buildRepoCardTweet(item.owner, item.name, item.description, item.deltaStars)}
+                    url={repoUrl(item.owner, item.name)}
+                  />
                   <FavoriteButton
                     owner={item.owner}
                     name={item.name}

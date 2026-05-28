@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "البحث في المستودعات المفهرسة",
-    "scopeNote": "النتائج من مستودعات جمعها GitHub Trending+، وليس كل GitHub. البحث بالكلمات المفتاحية يتحمل الأخطاء الإملائية.",
+    "scopeNote": "النتائج من مستودعات جمعها Trending8، وليس كل GitHub. البحث بالكلمات المفتاحية يتحمل الأخطاء الإملائية.",
     "placeholder": "اسم المستودع أو الوصف أو كلمة مفتاحية…",
     "headerPlaceholder": "بحث…",
     "submit": "بحث",
@@ -109,7 +109,7 @@
     "websitePhLink": "الموقع (رابط PH)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",
@@ -133,7 +133,9 @@
     "github": "فتح على GitHub",
     "compare": "مقارنة",
     "openCharts": "فتح المخططات",
-    "analyze": "تحليل على OSS Insight"
+    "analyze": "تحليل على OSS Insight",
+    "shareX": "مشاركة على X",
+    "shareTop8": "مشاركة أفضل 8"
   },
   "chartModal": {
     "close": "إغلاق",

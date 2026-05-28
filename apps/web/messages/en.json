@@ -12,7 +12,7 @@
   },
   "search": {
     "title": "Search indexed repositories",
-    "scopeNote": "Results come from repositories ingested by GitHub Trending+, not all of GitHub. Keyword search supports typo tolerance.",
+    "scopeNote": "Results come from repositories ingested by Trending8, not all of GitHub. Keyword search supports typo tolerance.",
     "placeholder": "Repo name, description, or keyword…",
     "headerPlaceholder": "Search…",
     "submit": "Search",
@@ -109,7 +109,7 @@
     "websitePhLink": "Website (PH link)",
     "detailBack": "Back to Product Hunt feed",
     "detailAttribution": "Launch metrics from Product Hunt. We do not host PH comments or voting.",
-    "indexedBridgeTitle": "Indexed on GitHub Trending+",
+    "indexedBridgeTitle": "Indexed on Trending8",
     "indexedBridgeBody": "This repository is in our chart. Open the trend detail page for star velocity, health signals, and alternatives.",
     "indexedRepoLabel": "Repository",
     "indexedLanguageLabel": "Language",
@@ -133,7 +133,9 @@
     "github": "Open on GitHub",
     "compare": "Compare",
     "openCharts": "Open charts",
-    "analyze": "Analyze on OSS Insight"
+    "analyze": "Analyze on OSS Insight",
+    "shareX": "Share on X",
+    "shareTop8": "Share Top 8"
   },
   "chartModal": {
     "close": "Close",
